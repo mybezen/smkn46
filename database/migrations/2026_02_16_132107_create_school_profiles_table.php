@@ -19,8 +19,8 @@ return new class extends Migration
             $table->enum('type', [
                 'HEADMASTER',
                 'PROFILE',
-                'VISION_MISSION',
                 'HISTORY',
+                'VISION_MISSION',
                 'ORGANIZATION_STRUCTURE',
             ])->unique();
             $table->string('title')->nullable();

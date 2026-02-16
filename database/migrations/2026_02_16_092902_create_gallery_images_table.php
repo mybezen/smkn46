@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('school_profiles', function (Blueprint $table) {
+        Schema::create('gallery_images', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['HEADMASTER', 'PROFILE', 'VISION-MISSION', 'HISTORY', 'FACILITIES', 'STRUCTURE-ORGANIZATION',]);
-            $table->text('content')->nullable();
-            $table->integer('index')->default(0);
+            $table->foreignId('gallery_id')->references('id')->on('galleries');
+            $table->string('image');
             $table->timestamps();
         });
     }

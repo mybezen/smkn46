@@ -7,9 +7,17 @@ use Illuminate\Http\Request;
 
 class GalleryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $galleries = Gallery::with('images')->get();
+        $galleries = Gallery::with('images')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+
+                $query->where('title', 'like', '%' . $search . '%');
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         // return $galleries;
     }
