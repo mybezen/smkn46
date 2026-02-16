@@ -23,7 +23,7 @@ class ArticleRequest extends FormRequest
     {
         return [
             'category_id' => ['required', 'exists:categories,id'],
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['required', 'string'],
             'content' => ['required', 'string'],
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'is_published' => ['sometimes', 'boolean'],

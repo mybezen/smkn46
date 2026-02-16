@@ -18,7 +18,12 @@ class ArticleController extends Controller
         $articles = Article::with(['author', 'category'])
             ->where('is_published', true)->get();
 
-        // return ;
+        $categories = Category::all();
+
+        // return Inertia::render('#', [
+        //     'article' => $article,
+        //     'categories' => $categories, // kalo butuh data category
+        // ]);
     }
 
     public function table()
@@ -32,7 +37,7 @@ class ArticleController extends Controller
     public function show(string $slug)
     {
         $article = Article::with(['author', 'category'])
-            ->where('slug', $slug)->get();
+            ->where('slug', $slug)->first();
 
         if (!$article) {
             return redirect()->back()->with('error', 'Article not found.');
@@ -81,7 +86,7 @@ class ArticleController extends Controller
     public function edit(string $slug)
     {
         $article = Article::with(['author', 'category'])
-            ->where('slug', $slug)->get();
+            ->where('slug', $slug)->first();
 
         if (!$article) {
             return redirect()->back()->with('error', 'Article not found.');
@@ -89,15 +94,15 @@ class ArticleController extends Controller
 
         $categories = Category::all();
 
-        return Inertia::render('isi-fe-ges', [
-            'article' => $article,
-            'categories' => $categories,
-        ]);
+        // return Inertia::render('#', [
+        //     'article' => $article,
+        //     'categories' => $categories,
+        // ]);
     }
 
     public function update(ArticleRequest $request, string $slug)
     {
-        $article = Article::where('slug', $slug)->get();
+        $article = Article::where('slug', $slug)->first();
 
         if (!$article) {
             return redirect()->back()->with('error', 'Article not found.');
@@ -140,7 +145,7 @@ class ArticleController extends Controller
 
     public function destroy(string $slug)
     {
-        $article = Article::where('slug', $slug)->get();
+        $article = Article::where('slug', $slug)->first();
 
         if (!$article) {
             return redirect()->back()->with('error', 'Article not found.');
@@ -157,7 +162,7 @@ class ArticleController extends Controller
 
     public function updateStatus(string $slug)
     {
-        $article = Article::where('slug', $slug)->get();
+        $article = Article::where('slug', $slug)->first();
 
         if (!$article) {
             return redirect()->back()->with('error', 'Article not found.');

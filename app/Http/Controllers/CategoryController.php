@@ -16,6 +16,13 @@ class CategoryController extends Controller
         // return ;
     }
 
+    public function table()
+    {
+        $categories = Category::all();
+
+        // return ;
+    }
+
     public function create()
     {
         // return ;
