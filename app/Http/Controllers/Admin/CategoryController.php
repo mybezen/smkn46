@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\CategoryRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Category\StoreCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -13,14 +15,7 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
 
-        // return ;
-    }
-
-    public function table()
-    {
-        $categories = Category::all();
-
-        // return ;
+        // return $categories;
     }
 
     public function create()
@@ -28,7 +23,7 @@ class CategoryController extends Controller
         // return ;
     }
 
-    public function store(CategoryRequest $request)
+    public function store(StoreCategoryRequest $request)
     {
         $validated = $request->validated();
 
@@ -58,10 +53,10 @@ class CategoryController extends Controller
             return redirect()->back()->with('error', 'Category not found.');
         }
 
-        // return ;
+        // return $category;
     }
 
-    public function update(CategoryRequest $request, string $slug)
+    public function update(UpdateCategoryRequest $request, string $slug)
     {
         $category = Category::where('slug', $slug)->first();
 
