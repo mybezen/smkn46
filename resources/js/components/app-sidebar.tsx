@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Award, BookOpen, Folder, Image, LayoutGrid } from 'lucide-react';
+import { Award, BookOpen, Folder, Image, LayoutGrid, GraduationCap, Trophy } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -30,6 +30,16 @@ const mainNavItems: NavItem[] = [
         title: 'Banners',
         href: '/admin/banners',
         icon: Image,
+    },
+    {
+        title: 'Majors',
+        href: '/admin/majors',
+        icon: GraduationCap,
+    },
+    {
+        title: 'Extracurriculars',
+        href: '/admin/extracurriculars',
+        icon: Trophy,
     },
 ];
 
