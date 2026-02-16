@@ -42,7 +42,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->back()->with('success', 'Category created successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
 
     public function edit(string $slug)
@@ -84,7 +84,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->back()->with('success', 'Category updated successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
 
     public function destroy(string $slug)
@@ -97,6 +97,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->back()->with('success', 'Category deleted successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 }

@@ -56,7 +56,7 @@ class ArticleController extends Controller
 
         Article::create($validated);
 
-        return redirect()->back()->with('success', 'Article created successfully.');
+        return redirect()->route('admin.articles.index')->with('success', 'Article created successfully.');
     }
 
     public function edit(string $slug)
@@ -116,7 +116,7 @@ class ArticleController extends Controller
 
         $article->update($validated);
 
-        return redirect()->back()->with('success', 'Article updated successfully.');
+        return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully.');
     }
 
     public function destroy(string $slug)
@@ -133,7 +133,7 @@ class ArticleController extends Controller
 
         $article->delete();
 
-        return redirect()->back()->with('success', 'Article deleted successfully.');
+        return redirect()->route('admin.articles.index')->with('success', 'Article deleted successfully.');
     }
 
     public function updateStatus(string $slug)

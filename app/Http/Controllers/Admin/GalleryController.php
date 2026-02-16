@@ -54,7 +54,7 @@ class GalleryController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Gallery created successfully.');
+        return redirect()->route('admin.galleries.index')->with('success', 'Gallery created successfully.');
     }
 
     public function edit(string $slug)
@@ -104,7 +104,7 @@ class GalleryController extends Controller
             }
         }
 
-        return redirect()->back()->with('success', 'Gallery updated successfully.');
+        return redirect()->route('admin.galleries.index')->with('success', 'Gallery updated successfully.');
     }
 
     public function destroy(string $slug)
@@ -123,7 +123,7 @@ class GalleryController extends Controller
 
         $gallery->delete();
 
-        return redirect()->back()->with('success', 'Gallery deleted successfully.');
+        return redirect()->route('admin.galleries.index')->with('success', 'Gallery deleted successfully.');
     }
 
     public function deleteImage(int $id)
