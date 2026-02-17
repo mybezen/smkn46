@@ -1,6 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
-import { NavFooter } from '@/components/nav-footer';
+import { Award, Image, LayoutGrid, GraduationCap, Trophy, Tag, FileText, Images } from 'lucide-react';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -14,26 +13,47 @@ import {
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
 import AppLogo from './app-logo';
-import { dashboard } from '@/routes';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: '/admin/dashboard',
         icon: LayoutGrid,
     },
-];
-
-const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
+        title: 'Achievements',
+        href: '/admin/achievements',
+        icon: Award,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
-        icon: BookOpen,
+        title: 'Banners',
+        href: '/admin/banners',
+        icon: Image,
+    },
+    {
+        title: 'Majors',
+        href: '/admin/majors',
+        icon: GraduationCap,
+    },
+    {
+        title: 'Extracurriculars',
+        href: '/admin/extracurriculars',
+        icon: Trophy,
+    },
+    {
+        title: 'Categories',
+        href: '/admin/categories',
+        icon: Tag,
+    },
+    {
+        title: 'Articles',
+        href: '/admin/articles',
+        icon: FileText,
+    },
+    {
+        title: 'Galleries',
+        href: '/admin/galleries',
+        icon: Images,
     },
 ];
 
@@ -44,7 +64,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
+                            <Link href="/admin/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -57,7 +77,6 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

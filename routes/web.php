@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\AchievementController;
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\ExtracurricularController;
+use App\Http\Controllers\Admin\MajorController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -16,14 +20,19 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', function () {
-    return Inertia::render('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'verified'])
     ->group(function () {
+
+        Route::resource('achievements', AchievementController::class);
+
+        Route::resource('banners', BannerController::class);
+
+        Route::resource('majors', MajorController::class);
+
+        Route::resource('extracurriculars', ExtracurricularController::class);
+
         Route::name('categories.')->group(function () {
             Route::get('/categories', [CategoryController::class, 'index'])->name('index');
             Route::post('/categories', [CategoryController::class, 'store'])->name('store');
@@ -39,6 +48,7 @@ Route::prefix('admin')
             Route::get('/articles/create', [ArticleController::class, 'create'])->name('create');
             Route::get('/articles/{slug}/edit', [ArticleController::class, 'edit'])->name('edit');
             Route::put('/articles/{slug}/status', [ArticleController::class, 'updateStatus'])->name('update-status');
+            Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('show');
             Route::put('/articles/{slug}', [ArticleController::class, 'update'])->name('update');
             Route::delete('/articles/{slug}', [ArticleController::class, 'destroy'])->name('destroy');
         });
@@ -49,10 +59,10 @@ Route::prefix('admin')
             Route::get('/galleries/create', [GalleryController::class, 'create'])->name('create');
             Route::delete('/galleries/image/{id}/delete', [GalleryController::class, 'deleteImage'])->name('delete-image');
             Route::get('/galleries/{slug}/edit', [GalleryController::class, 'edit'])->name('edit');
+            Route::get('/galleries/{slug}', [GalleryController::class, 'show'])->name('show');
             Route::put('/galleries/{slug}', [GalleryController::class, 'update'])->name('update');
             Route::delete('/galleries/{slug}', [GalleryController::class, 'destroy'])->name('destroy');
         });
-
         Route::get('/school-profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
         Route::put('/school-profile/headmaster', [SchoolProfileController::class, 'updateHeadmaster'])->name('update-headmaster');
         Route::get('/school-profile/profile', [SchoolProfileController::class, 'getProfile'])->name('get-profile');
@@ -63,7 +73,15 @@ Route::prefix('admin')
         Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVisionMission'])->name('update-vision-mission');
         Route::get('/school-profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
         Route::put('/school-profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
+
+         Route::get('/dashboard', function () {})->name('dashboard');
+        return Inertia::render('admin/dashboard');
     });
+
+
+
+
+
 
 Route::prefix('articles')->name('articles.')->group(function () {
     Route::get('/articles', [UserArticleController::class, 'index'])->name('index');
@@ -74,5 +92,8 @@ Route::prefix('galleries')->name('galleries.')->group(function () {
     Route::get('/galleries', [UserGalleryController::class, 'index'])->name('index');
     Route::get('/galleries/{slug}', [UserGalleryController::class, 'show'])->name('show');
 });
+
+
+Route::middleware('auth')->group(function () {});
 
 require __DIR__ . '/settings.php';
