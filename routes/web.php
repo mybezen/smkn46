@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\SchoolProfileController;
 use App\Http\Controllers\ArticleController as UserArticleController;
 use App\Http\Controllers\GalleryController as UserGalleryController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,17 @@ Route::prefix('admin')
             Route::put('/galleries/{slug}', [GalleryController::class, 'update'])->name('update');
             Route::delete('/galleries/{slug}', [GalleryController::class, 'destroy'])->name('destroy');
         });
+
+        Route::get('/school-profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
+        Route::put('/school-profile/headmaster', [SchoolProfileController::class, 'updateHeadmaster'])->name('update-headmaster');
+        Route::get('/school-profile/profile', [SchoolProfileController::class, 'getProfile'])->name('get-profile');
+        Route::put('/school-profile/profile', [SchoolProfileController::class, 'updateProfile'])->name('update-profile');
+        Route::get('/school-profile/history', [SchoolProfileController::class, 'getHistory'])->name('get-history');
+        Route::put('/school-profile/history', [SchoolProfileController::class, 'updateHistory'])->name('update-history');
+        Route::get('/school-profile/vision-mission', [SchoolProfileController::class, 'getVisionMission'])->name('get-vision-mission');
+        Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVissionMission'])->name('update-vission-mission');
+        Route::get('/school-profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
+        Route::put('/school-profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
     });
 
 Route::prefix('articles')->name('articles.')->group(function () {
