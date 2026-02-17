@@ -11,14 +11,18 @@ use App\Http\Requests\SchoolProfile\UpdateVisionMissionRequest;
 use App\Models\SchoolProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SchoolProfileController extends Controller
 {
-    public function getHeadmaster()
+    public function getHeadmaster(): Response
     {
         $headMaster = SchoolProfile::where('type', 'HEADMASTER')->first();
 
-        // return $headMaster (data: title, content, main_image);
+        return Inertia::render('admin/school-profile/headmaster/index', [
+            'headmaster' => $headMaster?->only(['title', 'content', 'main_image']),
+        ]);
     }
 
     public function updateHeadmaster(UpdateHeadmasterRequest $request)
@@ -44,11 +48,13 @@ class SchoolProfileController extends Controller
         return redirect()->back()->with('success', 'Headmaster updated successfully.');
     }
 
-    public function getProfile()
+    public function getProfile(): Response
     {
         $profile = SchoolProfile::where('type', 'PROFILE')->first();
 
-        // return $profile (data: title, content, main_image);
+        return Inertia::render('admin/school-profile/profile/index', [
+            'profile' => $profile?->only(['title', 'content', 'main_image']),
+        ]);
     }
 
     public function updateProfile(UpdateProfileRequest $request)
@@ -74,11 +80,13 @@ class SchoolProfileController extends Controller
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
-    public function getHistory()
+    public function getHistory(): Response
     {
         $history = SchoolProfile::where('type', 'HISTORY')->first();
 
-        // return $history (data: title, content, main_image);
+        return Inertia::render('admin/school-profile/history/index', [
+            'history' => $history?->only(['title', 'content', 'main_image']),
+        ]);
     }
 
     public function updateHistory(UpdateHistoryRequest $request)
@@ -104,11 +112,13 @@ class SchoolProfileController extends Controller
         return redirect()->back()->with('success', 'History updated successfully.');
     }
 
-    public function getVisionMission()
+    public function getVisionMission(): Response
     {
         $visionMission = SchoolProfile::where('type', 'VISION_MISSION')->first();
 
-        // return $visionMission (data: title, data, main_image);
+        return Inertia::render('admin/school-profile/vision-mission/index', [
+            'visionMission' => $visionMission?->only(['title', 'data', 'main_image']),
+        ]);
     }
 
     public function updateVisionMission(UpdateVisionMissionRequest $request)
@@ -130,9 +140,9 @@ class SchoolProfileController extends Controller
 
             $file = $request->file('main_image');
 
-            $validated['main_image'] = Storage::disk('public')->putFile('school_profiles', $file);
+            $mainImage = Storage::disk('public')->putFile('school_profiles', $file);
         } else {
-            $validated['main_image'] = $visionMission?->main_image;
+            $mainImage = $visionMission?->main_image;
         }
 
         SchoolProfile::updateOrCreate(
@@ -140,18 +150,20 @@ class SchoolProfileController extends Controller
             [
                 'title' => $validated['title'],
                 'data' => $data,
-                'main_image' => $validated['main_image'],
+                'main_image' => $mainImage,
             ]
         );
 
         return redirect()->back()->with('success', 'Vision Mission updated successfully.');
     }
 
-    public function getOrganizationStructure()
+    public function getOrganizationStructure(): Response
     {
         $organizationStructure = SchoolProfile::where('type', 'ORGANIZATION_STRUCTURE')->first();
 
-        // return $organizationStructure (data: title, data);
+        return Inertia::render('admin/school-profile/organization-structure/index', [
+            'organizationStructure' => $organizationStructure?->only(['title', 'data']),
+        ]);
     }
 
     public function updateOrganizationStructure(UpdateOrganizationStructureRequest $request)
