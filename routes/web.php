@@ -25,6 +25,10 @@ Route::prefix('admin')
     ->middleware(['auth', 'verified'])
     ->group(function () {
 
+        Route::get('/dashboard', function () {
+            return Inertia::render('admin/dashboard');
+        })->name('dashboard');
+
         Route::resource('achievements', AchievementController::class);
 
         Route::resource('banners', BannerController::class);
@@ -73,9 +77,6 @@ Route::prefix('admin')
         Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVisionMission'])->name('update-vision-mission');
         Route::get('/school-profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
         Route::put('/school-profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
-
-         Route::get('/dashboard', function () {})->name('dashboard');
-        return Inertia::render('admin/dashboard');
     });
 
 
