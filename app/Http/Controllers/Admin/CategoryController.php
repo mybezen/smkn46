@@ -1,26 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\CategoryRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Category\StoreCategoryRequest;
+use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        $categories = Category::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
 
-        // return ;
-    }
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-    public function table()
-    {
-        $categories = Category::all();
-
-        // return ;
+        // return $categories;
     }
 
     public function create()
@@ -28,7 +31,7 @@ class CategoryController extends Controller
         // return ;
     }
 
-    public function store(CategoryRequest $request)
+    public function store(StoreCategoryRequest $request)
     {
         $validated = $request->validated();
 
@@ -47,7 +50,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->back()->with('success', 'Category created successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category created successfully.');
     }
 
     public function edit(string $slug)
@@ -58,10 +61,10 @@ class CategoryController extends Controller
             return redirect()->back()->with('error', 'Category not found.');
         }
 
-        // return ;
+        // return $category;
     }
 
-    public function update(CategoryRequest $request, string $slug)
+    public function update(UpdateCategoryRequest $request, string $slug)
     {
         $category = Category::where('slug', $slug)->first();
 
@@ -89,7 +92,7 @@ class CategoryController extends Controller
 
         $category->update($validated);
 
-        return redirect()->back()->with('success', 'Category updated successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
 
     public function destroy(string $slug)
@@ -102,6 +105,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return redirect()->back()->with('success', 'Category deleted successfully.');
+        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
     }
 }
