@@ -47,6 +47,7 @@ Route::prefix('admin')
             Route::get('/articles/create', [ArticleController::class, 'create'])->name('create');
             Route::get('/articles/{slug}/edit', [ArticleController::class, 'edit'])->name('edit');
             Route::put('/articles/{slug}/status', [ArticleController::class, 'updateStatus'])->name('update-status');
+            Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('show');
             Route::put('/articles/{slug}', [ArticleController::class, 'update'])->name('update');
             Route::delete('/articles/{slug}', [ArticleController::class, 'destroy'])->name('destroy');
         });
@@ -57,16 +58,18 @@ Route::prefix('admin')
             Route::get('/galleries/create', [GalleryController::class, 'create'])->name('create');
             Route::delete('/galleries/image/{id}/delete', [GalleryController::class, 'deleteImage'])->name('delete-image');
             Route::get('/galleries/{slug}/edit', [GalleryController::class, 'edit'])->name('edit');
+            Route::get('/galleries/{slug}', [GalleryController::class, 'show'])->name('show');
             Route::put('/galleries/{slug}', [GalleryController::class, 'update'])->name('update');
             Route::delete('/galleries/{slug}', [GalleryController::class, 'destroy'])->name('destroy');
         });
+
+        Route::get('/dashboard', function () {})->name('dashboard');
+        return Inertia::render('admin/dashboard');
     });
 
 
 
-Route::get('/dashboard', function () {
-    return Inertia::render('admin/dashboard');
-})->name('dashboard');
+
 
 
 Route::prefix('articles')->name('articles.')->group(function () {
