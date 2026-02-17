@@ -60,7 +60,7 @@ Route::prefix('admin')
         Route::get('/school-profile/history', [SchoolProfileController::class, 'getHistory'])->name('get-history');
         Route::put('/school-profile/history', [SchoolProfileController::class, 'updateHistory'])->name('update-history');
         Route::get('/school-profile/vision-mission', [SchoolProfileController::class, 'getVisionMission'])->name('get-vision-mission');
-        Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVissionMission'])->name('update-vission-mission');
+        Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVisionMission'])->name('update-vision-mission');
         Route::get('/school-profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
         Route::put('/school-profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
     });
