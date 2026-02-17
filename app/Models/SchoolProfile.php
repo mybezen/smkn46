@@ -15,4 +15,8 @@ class SchoolProfile extends Model
         'order',
         'is_active',
     ];
+
+    protected $casts = [
+        'data' => 'array',
+    ];
 }
