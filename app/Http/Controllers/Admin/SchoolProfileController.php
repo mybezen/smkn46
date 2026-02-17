@@ -119,7 +119,7 @@ class SchoolProfileController extends Controller
 
         $data = [
             'vision' => $validated['vision'],
-            'mission' => $validated['mission'],
+            'missions' => $validated['missions'],
             'motto' => $validated['motto'],
         ];
 

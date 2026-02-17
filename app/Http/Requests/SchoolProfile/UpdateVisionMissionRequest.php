@@ -25,8 +25,8 @@ class UpdateVisionMissionRequest extends FormRequest
             'title' => ['nullable', 'string'],
             'vision' => ['nullable', 'string'],
             'missions' => ['nullable', 'array', 'min:1'],
-            'missons.*' => ['nullable', 'string'],
-            'motto' => ['nullable, string'],
+            'missions.*' => ['nullable', 'string'],
+            'motto' => ['nullable', 'string'],
             'main_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
