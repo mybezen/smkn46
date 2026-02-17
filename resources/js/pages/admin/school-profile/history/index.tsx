@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { motion } from 'motion/react';
 import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
-import { useForm, usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -53,15 +53,14 @@ const cardVariants: Variants = {
 export default function HistoryIndex() {
     const { history, flash } = usePage<PageProps>().props;
 
-    const { data, setData, processing, post } = useForm({
-        title: history?.title ?? '',
-        content: history?.content ?? '',
-    });
-
+    const [title, setTitle] = useState<string>(history?.title ?? '');
+    const [content, setContent] = useState<string>(history?.content ?? '');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(
         history?.main_image ? `/storage/${history.main_image}` : null,
     );
+    const [processing, setProcessing] = useState<boolean>(false);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -73,14 +72,17 @@ export default function HistoryIndex() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setProcessing(true);
+
         const formData = new FormData();
         formData.append('_method', 'PUT');
-        if (data.title) formData.append('title', data.title);
-        if (data.content) formData.append('content', data.content);
+        if (title) formData.append('title', title);
+        if (content) formData.append('content', content);
         if (imageFile) formData.append('main_image', imageFile);
 
-        post('/admin/school-profile/history', {
+        router.post('/admin/school-profile/history', formData, {
             forceFormData: true,
+            onFinish: () => setProcessing(false),
         });
     };
 
@@ -92,7 +94,6 @@ export default function HistoryIndex() {
                 animate="visible"
                 className="min-h-screen bg-gray-50/40 p-4 md:p-8"
             >
-                {/* Page Header */}
                 <div className="mb-8">
                     <div className="flex items-center gap-3 mb-2">
                         <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shadow-sm">
@@ -123,7 +124,6 @@ export default function HistoryIndex() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Main Content Card */}
                         <motion.div variants={cardVariants} className="lg:col-span-2">
                             <Card className="rounded-2xl shadow-sm border-gray-200">
                                 <CardHeader className="pb-4">
@@ -133,32 +133,26 @@ export default function HistoryIndex() {
                                 </CardHeader>
                                 <CardContent className="space-y-5">
                                     <div className="space-y-1.5">
-                                        <Label
-                                            htmlFor="title"
-                                            className="text-sm font-medium text-gray-700"
-                                        >
+                                        <Label htmlFor="title" className="text-sm font-medium text-gray-700">
                                             Title
                                         </Label>
                                         <Input
                                             id="title"
                                             placeholder="e.g. Our School History"
-                                            value={data.title}
-                                            onChange={(e) => setData('title', e.target.value)}
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
                                             className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400/20"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <Label
-                                            htmlFor="content"
-                                            className="text-sm font-medium text-gray-700"
-                                        >
+                                        <Label htmlFor="content" className="text-sm font-medium text-gray-700">
                                             Content
                                         </Label>
                                         <Textarea
                                             id="content"
                                             placeholder="Write about your school's history..."
-                                            value={data.content}
-                                            onChange={(e) => setData('content', e.target.value)}
+                                            value={content}
+                                            onChange={(e) => setContent(e.target.value)}
                                             rows={10}
                                             className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 resize-none"
                                         />
@@ -167,7 +161,6 @@ export default function HistoryIndex() {
                             </Card>
                         </motion.div>
 
-                        {/* Image + Submit Card */}
                         <motion.div variants={cardVariants} className="space-y-5">
                             <Card className="rounded-2xl shadow-sm border-gray-200">
                                 <CardHeader className="pb-4">
@@ -198,9 +191,7 @@ export default function HistoryIndex() {
                                     ) : (
                                         <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 aspect-[4/3] bg-gray-50 gap-2">
                                             <ImageIcon className="w-8 h-8 text-gray-300" />
-                                            <span className="text-xs text-gray-400">
-                                                No image uploaded
-                                            </span>
+                                            <span className="text-xs text-gray-400">No image uploaded</span>
                                         </div>
                                     )}
 
