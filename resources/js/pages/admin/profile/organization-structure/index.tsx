@@ -128,7 +128,7 @@ export default function OrganizationStructureIndex() {
             }
         });
 
-        router.post('/admin/school-profile/organization-structure', formData, {
+        router.post('/admin/profile/organization-structure', formData, {
             forceFormData: true,
             onFinish: () => setProcessing(false),
         });

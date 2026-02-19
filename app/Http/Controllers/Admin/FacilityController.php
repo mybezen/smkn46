@@ -9,6 +9,8 @@ use App\Models\Facility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class FacilityController extends Controller
 {
@@ -24,7 +26,10 @@ class FacilityController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // return $facilities;
+        return Inertia::render('admin/facilities/index', [
+            'facilities' => $facilities,
+            'filters' => $request->only(['search']),
+        ]);
     }
 
     public function show(string $slug)
@@ -35,12 +40,14 @@ class FacilityController extends Controller
             return redirect()->back()->with('error', 'Facility not found.');
         }
 
-        // return $facility;
+        return Inertia::render('admin/facilities/show', [
+            'facility' => $facility,
+        ]);
     }
 
     public function create()
     {
-        // return ;
+        return Inertia::render('admin/facilities/create');
     }
 
     public function store(StoreFacilityRequest $request)
@@ -77,7 +84,9 @@ class FacilityController extends Controller
             return redirect()->back()->with('error', 'Facility not found.');
         }
 
-        // return ;
+        return Inertia::render('admin/facilities/edit', [
+            'facility' => $facility,
+        ]);
     }
 
     public function update(UpdateFacilityRequest $request, string $slug)

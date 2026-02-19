@@ -80,7 +80,7 @@ export default function HistoryIndex() {
         if (content) formData.append('content', content);
         if (imageFile) formData.append('main_image', imageFile);
 
-        router.post('/admin/school-profile/history', formData, {
+        router.post('/admin/profile/history', formData, {
             forceFormData: true,
             onFinish: () => setProcessing(false),
         });

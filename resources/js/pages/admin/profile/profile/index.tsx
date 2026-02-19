@@ -80,7 +80,7 @@ export default function ProfileIndex() {
         if (content) formData.append('content', content);
         if (imageFile) formData.append('main_image', imageFile);
 
-        router.post('/admin/school-profile/profile', formData, {
+        router.post('/admin/profile/profile', formData, {
             forceFormData: true,
             onFinish: () => setProcessing(false),
         });

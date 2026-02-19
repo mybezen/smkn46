@@ -20,7 +20,7 @@ class SchoolProfileController extends Controller
     {
         $headMaster = SchoolProfile::where('type', 'HEADMASTER')->first();
 
-        return Inertia::render('admin/school-profile/headmaster/index', [
+        return Inertia::render('admin/profile/headmaster/index', [
             'headmaster' => $headMaster?->only(['title', 'content', 'main_image']),
         ]);
     }
@@ -52,7 +52,7 @@ class SchoolProfileController extends Controller
     {
         $profile = SchoolProfile::where('type', 'PROFILE')->first();
 
-        return Inertia::render('admin/school-profile/profile/index', [
+        return Inertia::render('admin/profile/profile/index', [
             'profile' => $profile?->only(['title', 'content', 'main_image']),
         ]);
     }
@@ -84,7 +84,7 @@ class SchoolProfileController extends Controller
     {
         $history = SchoolProfile::where('type', 'HISTORY')->first();
 
-        return Inertia::render('admin/school-profile/history/index', [
+        return Inertia::render('admin/profile/history/index', [
             'history' => $history?->only(['title', 'content', 'main_image']),
         ]);
     }
@@ -116,7 +116,7 @@ class SchoolProfileController extends Controller
     {
         $visionMission = SchoolProfile::where('type', 'VISION_MISSION')->first();
 
-        return Inertia::render('admin/school-profile/vision-mission/index', [
+        return Inertia::render('admin/profile/vision-mission/index', [
             'visionMission' => $visionMission?->only(['title', 'data', 'main_image']),
         ]);
     }
@@ -161,7 +161,7 @@ class SchoolProfileController extends Controller
     {
         $organizationStructure = SchoolProfile::where('type', 'ORGANIZATION_STRUCTURE')->first();
 
-        return Inertia::render('admin/school-profile/organization-structure/index', [
+        return Inertia::render('admin/profile/organization-structure/index', [
             'organizationStructure' => $organizationStructure?->only(['title', 'data']),
         ]);
     }

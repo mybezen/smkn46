@@ -14,6 +14,8 @@ import {
     Eye,
     Network,
     ChevronRight,
+    Building2,
+    Users,
 } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -111,6 +113,16 @@ const navItems: NavEntry[] = [
         title: 'Galleries',
         href: '/admin/galleries',
         icon: Images,
+    },
+    {
+        title: 'Facilities',
+        href: '/admin/facilities',
+        icon: Building2,
+    },
+    {
+        title: 'Employees',
+        href: '/admin/employees',
+        icon: Users,
     },
 ];
 
