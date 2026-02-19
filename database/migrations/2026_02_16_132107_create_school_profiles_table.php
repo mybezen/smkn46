@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->json('data')->nullable();
             $table->string('main_image')->nullable();
-            $table->integer('order')->default(0);
+            $table->integer('display_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
