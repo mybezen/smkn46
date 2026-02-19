@@ -72,11 +72,11 @@ const navItems: NavEntry[] = [
         title: 'School Profile',
         icon: School,
         children: [
-            { title: 'Headmaster', href: '/admin/school-profile/headmaster' },
-            { title: 'Profile', href: '/admin/school-profile/profile' },
-            { title: 'History', href: '/admin/school-profile/history' },
-            { title: 'Vision & Mission', href: '/admin/school-profile/vision-mission' },
-            { title: 'Organization Structure', href: '/admin/school-profile/organization-structure' },
+            { title: 'Headmaster', href: '/admin/profile/headmaster' },
+            { title: 'Profile', href: '/admin/profile/profile' },
+            { title: 'History', href: '/admin/profile/history' },
+            { title: 'Vision & Mission', href: '/admin/profile/vision-mission' },
+            { title: 'Organization Structure', href: '/admin/profile/organization-structure' },
         ],
     },
     {
