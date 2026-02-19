@@ -6,12 +6,14 @@ use App\Http\Controllers\Admin\ExtracurricularController;
 use App\Http\Controllers\Admin\MajorController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SchoolProfileController;
 use App\Http\Controllers\ArticleController as UserArticleController;
 use App\Http\Controllers\FacilityController as UserFacilityController;
 use App\Http\Controllers\GalleryController as UserGalleryController;
+use App\Http\Controllers\EmployeeController as UserEmployeeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -80,6 +82,15 @@ Route::prefix('admin')
             Route::delete('/facilities/{slug}', [FacilityController::class, 'destroy'])->name('destroy');
         });
 
+        Route::name('employees.')->group(function () {
+            Route::get('/employees', [EmployeeController::class, 'index'])->name('index');
+            Route::post('/employees', [EmployeeController::class, 'store'])->name('store');
+            Route::get('/employees/create', [EmployeeController::class, 'create'])->name('create');
+            Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('edit');
+            Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('update');
+            Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
+        });
+
         Route::get('/school-profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
         Route::put('/school-profile/headmaster', [SchoolProfileController::class, 'updateHeadmaster'])->name('update-headmaster');
         Route::get('/school-profile/profile', [SchoolProfileController::class, 'getProfile'])->name('get-profile');
@@ -107,7 +118,6 @@ Route::name('facilities.')->group(function () {
     Route::get('/facilities/{slug}', [UserFacilityController::class, 'show'])->name('show');
 });
 
-
-Route::middleware('auth')->group(function () {});
+Route::get('/guru-karyawan', [UserEmployeeController::class, 'index'])->name('index');
 
 require __DIR__ . '/settings.php';

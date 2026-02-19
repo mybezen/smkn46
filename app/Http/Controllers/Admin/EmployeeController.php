@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Employee\StoreEmployeeRequest;
+use App\Http\Requests\Employee\UpdateEmployeeRequest;
+use App\Models\Employee;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+class EmployeeController extends Controller
+{
+    public function index()
+    {
+        $employees = Employee::orderBy('display_order')->get();
+
+        // return $employees;
+    }
+
+    public function create()
+    {
+        // return ;
+    }
+
+    public function store(StoreEmployeeRequest $request)
+    {
+        $validated = $request->validated();
+
+        $validated['display_order'] = match ($validated['category']) {
+            'PRINCIPAL' => 0,
+            'HEAD_OF_ADMIN' => 1,
+            'VICE_PRINCIPAL' => 2,
+            'TEACHER' => 3,
+            'ADMINISTRATIVE' => 4,
+            'STAFF' => 5,
+            default => 5,
+        };
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            $validated['image'] = Storage::disk('public')->putFile('employees', $file);
+        }
+
+        Employee::create($validated);
+
+        return redirect()->route('admin.employees.index')->with('success', 'Employee created successfully.');
+    }
+
+    public function edit(string $id)
+    {
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Employee not found.');
+        }
+
+        // return $employee;
+    }
+
+    public function update(UpdateEmployeeRequest $request, string $id)
+    {
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Employee not found.');
+        }
+
+        $validated = $request->validated();
+
+        $validated['display_order'] = match ($validated['category']) {
+            'PRINCIPAL' => 0,
+            'HEAD_OF_ADMIN' => 1,
+            'VICE_PRINCIPAL' => 2,
+            'TEACHER' => 3,
+            'ADMINISTRATIVE' => 4,
+            'STAFF' => 5,
+            default => 5,
+        };
+
+        if ($request->hasFile('image')) {
+            if ($employee->image && Storage::disk('public')->exists($employee->image)) {
+                Storage::disk('public')->delete($employee->image);
+            }
+
+            $file = $request->file('image');
+
+            $validated['image'] = Storage::disk('public')->putFile('employees', $file);
+        } else {
+            unset($validated['image']);
+        }
+
+        $employee->update($validated);
+
+        return redirect()->route('admin.employees.index')->with('success', 'Employee updated successfully.');
+    }
+
+    public function destroy(string $id)
+    {
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Employee not found.');
+        }
+        
+        if ($employee->image && Storage::disk('public')->exists($employee->image)) {
+            Storage::disk('public')->delete($employee->image);
+        }
+
+        $employee->delete();
+
+        return redirect()->route('admin.employees.index')->with('success', 'Employee deleted successfully.');
+    }
+}
