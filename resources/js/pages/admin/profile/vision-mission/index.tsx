@@ -129,7 +129,7 @@ export default function VisionMissionIndex() {
         });
         if (imageFile) formData.append('main_image', imageFile);
 
-        router.post('/admin/school-profile/vision-mission', formData, {
+        router.post('/admin/profile/vision-mission', formData, {
             forceFormData: true,
             onFinish: () => setProcessing(false),
         });

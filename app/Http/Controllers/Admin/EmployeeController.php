@@ -8,10 +8,12 @@ use App\Http\Requests\Employee\UpdateEmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class EmployeeController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $employees = Employee::query()
             ->when($request->filled('search'), function ($query) use ($request) {
@@ -26,12 +28,15 @@ class EmployeeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // return $employees;
+        return Inertia::render('admin/employees/index', [
+            'employees' => $employees,
+            'filters' => $request->only(['search', 'category']),
+        ]);
     }
 
     public function create()
     {
-        // return ;
+        return Inertia::render('admin/employees/create');
     }
 
     public function store(StoreEmployeeRequest $request)
@@ -67,7 +72,9 @@ class EmployeeController extends Controller
             return redirect()->back()->with('error', 'Employee not found.');
         }
 
-        // return $employee;
+        return Inertia::render('admin/employees/edit', [
+            'employee' => $employee,
+        ]);
     }
 
     public function update(UpdateEmployeeRequest $request, string $id)
