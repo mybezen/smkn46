@@ -187,6 +187,15 @@ function NavItemComponent({ item }: { item: NavEntry }) {
 }
 
 export function AppSidebar() {
+    const { props } = usePage();
+    const user = props.auth?.user;
+    const isAdmin = user?.is_admin ?? false;
+
+    const filteredNavItems = navItems.filter((item) => {
+        if (isAdmin) return true;
+        return item.title === 'Articles' || item.title === 'Galleries';
+    });
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -206,7 +215,7 @@ export function AppSidebar() {
                     <SidebarGroupLabel>Navigation</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {navItems.map((item) => (
+                            {filteredNavItems.map((item) => (
                                 <NavItemComponent
                                     key={isGroup(item) ? item.title : item.href}
                                     item={item}
