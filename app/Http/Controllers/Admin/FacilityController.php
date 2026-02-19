@@ -105,23 +105,23 @@ class FacilityController extends Controller
             }
 
             $validated['slug'] = $newSlug;
+        }
 
-            if ($request->hasFile('image')) {
-                if ($facility->image && Storage::disk('public')->exists($facility->image)) {
-                    Storage::disk('public')->delete($facility->image);
-                }
-
-                $file = $request->file('image');
-
-                $validated['image'] = Storage::disk('public')->putFile('facilities', $file);
-            } else {
-                unset($validated['image']);
+        if ($request->hasFile('image')) {
+            if ($facility->image && Storage::disk('public')->exists($facility->image)) {
+                Storage::disk('public')->delete($facility->image);
             }
 
-            $facility->update($validated);
+            $file = $request->file('image');
 
-            return redirect()->route('admin.facilities.index')->with('success', 'Facility updated successfully.');
+            $validated['image'] = Storage::disk('public')->putFile('facilities', $file);
+        } else {
+            unset($validated['image']);
         }
+
+        $facility->update($validated);
+
+        return redirect()->route('admin.facilities.index')->with('success', 'Facility updated successfully.');
     }
 
     public function destroy(string $slug)
