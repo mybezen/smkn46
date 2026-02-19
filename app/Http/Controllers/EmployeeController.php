@@ -9,7 +9,7 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::orderBy('display_order')->get();
+        $employees = Employee::orderBy('display_order')->get()->groupBy('category');
 
         // return $employees;
     }

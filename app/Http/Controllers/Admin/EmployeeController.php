@@ -13,7 +13,7 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::orderBy('display_order')->get();
+        $employees = Employee::orderBy('display_order')->get()->groupBy('category');
 
         // return $employees;
     }
@@ -103,7 +103,7 @@ class EmployeeController extends Controller
         if (!$employee) {
             return redirect()->back()->with('error', 'Employee not found.');
         }
-        
+
         if ($employee->image && Storage::disk('public')->exists($employee->image)) {
             Storage::disk('public')->delete($employee->image);
         }
