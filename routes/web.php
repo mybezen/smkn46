@@ -91,16 +91,16 @@ Route::prefix('admin')
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
         });
 
-        Route::get('/school-profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
-        Route::put('/school-profile/headmaster', [SchoolProfileController::class, 'updateHeadmaster'])->name('update-headmaster');
-        Route::get('/school-profile/profile', [SchoolProfileController::class, 'getProfile'])->name('get-profile');
-        Route::put('/school-profile/profile', [SchoolProfileController::class, 'updateProfile'])->name('update-profile');
-        Route::get('/school-profile/history', [SchoolProfileController::class, 'getHistory'])->name('get-history');
-        Route::put('/school-profile/history', [SchoolProfileController::class, 'updateHistory'])->name('update-history');
-        Route::get('/school-profile/vision-mission', [SchoolProfileController::class, 'getVisionMission'])->name('get-vision-mission');
-        Route::put('/school-profile/vision-mission', [SchoolProfileController::class, 'updateVisionMission'])->name('update-vision-mission');
-        Route::get('/school-profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
-        Route::put('/school-profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
+        Route::get('/profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
+        Route::put('/profile/headmaster', [SchoolProfileController::class, 'updateHeadmaster'])->name('update-headmaster');
+        Route::get('/profile/profile', [SchoolProfileController::class, 'getProfile'])->name('get-profile');
+        Route::put('/profile/profile', [SchoolProfileController::class, 'updateProfile'])->name('update-profile');
+        Route::get('/profile/history', [SchoolProfileController::class, 'getHistory'])->name('get-history');
+        Route::put('/profile/history', [SchoolProfileController::class, 'updateHistory'])->name('update-history');
+        Route::get('/profile/vision-mission', [SchoolProfileController::class, 'getVisionMission'])->name('get-vision-mission');
+        Route::put('/profile/vision-mission', [SchoolProfileController::class, 'updateVisionMission'])->name('update-vision-mission');
+        Route::get('/profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
+        Route::put('/profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
     });
 
 Route::prefix('articles')->name('articles.')->group(function () {
