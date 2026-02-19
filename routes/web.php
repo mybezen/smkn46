@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SchoolProfileController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ArticleController as UserArticleController;
 use App\Http\Controllers\FacilityController as UserFacilityController;
 use App\Http\Controllers\GalleryController as UserGalleryController;
@@ -83,6 +84,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
             Route::get('/employees/{id}/edit', [EmployeeController::class, 'edit'])->name('edit');
             Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('update');
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
+        });
+        
+        Route::name('user.')->group(function () {
+            Route::get('/users', [UserController::class, 'index'])->name('index');
+            Route::get('/users/create', [UserController::class, 'create'])->name('create');
+            Route::post('/users', [UserController::class, 'store'])->name('store');
+            Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('edit');
+            Route::put('/users/{id}', [UserController::class, 'update'])->name('update');
+            Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('destroy');
         });
 
         Route::get('/profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
