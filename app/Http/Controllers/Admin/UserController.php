@@ -8,6 +8,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -33,7 +34,10 @@ class UserController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return $users;
+        return Inertia::render('admin/users/index', [
+            'users' => $users,
+            'filters' => $request->only(['search', 'role']),
+        ]);
     }
 
     public function show(string $id)
@@ -44,12 +48,14 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'User not found.');
         }
 
-        return $user;
+    return Inertia::render('admin/users/show', [
+            'user' => $user,
+        ]);
     }
 
     public function create()
     {
-        // return ;
+        return Inertia::render('admin/users/create');
     }
 
     public function store(StoreUserRequest $request)
@@ -75,7 +81,9 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'User not found.');
         }
 
-        return $user;
+        return Inertia::render('admin/users/edit', [
+            'user' => $user,
+        ]);
     }
 
     public function update(UpdateUserRequest $request, string $id)

@@ -124,6 +124,11 @@ const navItems: NavEntry[] = [
         href: '/admin/employees',
         icon: Users,
     },
+    {
+        title: 'Users',
+        href: '/admin/users',
+        icon: Users,
+    },
 ];
 
 function NavItemComponent({ item }: { item: NavEntry }) {
@@ -197,7 +202,7 @@ export function AppSidebar() {
     });
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="floating">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
