@@ -11,9 +11,20 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::orderBy('display_order')->get()->groupBy('category');
+        $employees = Employee::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->when($request->filled('category'), function ($query) use ($request) {
+                $query->where('category', $request->category);
+            })
+            ->orderBy('display_order')
+            ->paginate(10)
+            ->withQueryString();
 
         // return $employees;
     }
