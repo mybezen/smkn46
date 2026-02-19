@@ -24,52 +24,46 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware(['auth', 'verified'])
-    ->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('admin/dashboard');
+    })->name('dashboard');
 
-        Route::get('/dashboard', function () {
-            return Inertia::render('admin/dashboard');
-        })->name('dashboard');
-
-        Route::resource('achievements', AchievementController::class);
-
-        Route::resource('banners', BannerController::class);
-
-        Route::resource('majors', MajorController::class);
-
-        Route::resource('extracurriculars', ExtracurricularController::class);
-
-        Route::name('categories.')->group(function () {
-            Route::get('/categories', [CategoryController::class, 'index'])->name('index');
-            Route::post('/categories', [CategoryController::class, 'store'])->name('store');
-            Route::get('/categories/create', [CategoryController::class, 'create'])->name('create');
-            Route::get('/categories/{slug}/edit', [CategoryController::class, 'edit'])->name('edit');
-            Route::put('/categories/{slug}', [CategoryController::class, 'update'])->name('update');
-            Route::delete('/categories/{slug}', [CategoryController::class, 'destroy'])->name('destroy');
+    Route::middleware('admin')->group(function () {
+        Route::name('achievements.')->group(function () {
+            Route::get('/achievements', [AchievementController::class, 'index'])->name('index');
+            Route::post('/achievements', [AchievementController::class, 'store'])->name('store');
+            Route::get('/achievements/create', [AchievementController::class, 'create'])->name('create');
+            Route::get('/achievements/{id}/edit', [AchievementController::class, 'edit'])->name('edit');
+            Route::put('/achievements/{id}', [AchievementController::class, 'update'])->name('update');
+            Route::delete('/achievements/{id}', [AchievementController::class, 'destroy'])->name('destroy');
         });
 
-        Route::name('articles.')->group(function () {
-            Route::get('/articles', [ArticleController::class, 'index'])->name('index');
-            Route::post('/articles', [ArticleController::class, 'store'])->name('store');
-            Route::get('/articles/create', [ArticleController::class, 'create'])->name('create');
-            Route::get('/articles/{slug}/edit', [ArticleController::class, 'edit'])->name('edit');
-            Route::put('/articles/{slug}/status', [ArticleController::class, 'updateStatus'])->name('update-status');
-            Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('show');
-            Route::put('/articles/{slug}', [ArticleController::class, 'update'])->name('update');
-            Route::delete('/articles/{slug}', [ArticleController::class, 'destroy'])->name('destroy');
+        Route::name('banners.')->group(function () {
+            Route::get('/banners', [BannerController::class, 'index'])->name('index');
+            Route::post('/banners', [BannerController::class, 'store'])->name('store');
+            Route::get('/banners/create', [BannerController::class, 'create'])->name('create');
+            Route::get('/banners/{id}/edit', [BannerController::class, 'edit'])->name('edit');
+            Route::put('/banners/{id}', [BannerController::class, 'update'])->name('update');
+            Route::delete('/banners/{id}', [BannerController::class, 'destroy'])->name('destroy');
         });
 
-        Route::name('galleries.')->group(function () {
-            Route::get('/galleries', [GalleryController::class, 'index'])->name('index');
-            Route::post('/galleries', [GalleryController::class, 'store'])->name('store');
-            Route::get('/galleries/create', [GalleryController::class, 'create'])->name('create');
-            Route::delete('/galleries/image/{id}/delete', [GalleryController::class, 'deleteImage'])->name('delete-image');
-            Route::get('/galleries/{slug}/edit', [GalleryController::class, 'edit'])->name('edit');
-            Route::get('/galleries/{slug}', [GalleryController::class, 'show'])->name('show');
-            Route::put('/galleries/{slug}', [GalleryController::class, 'update'])->name('update');
-            Route::delete('/galleries/{slug}', [GalleryController::class, 'destroy'])->name('destroy');
+        Route::name('majors.')->group(function () {
+            Route::get('/majors', [MajorController::class, 'index'])->name('index');
+            Route::post('/majors', [MajorController::class, 'store'])->name('store');
+            Route::get('/majors/create', [MajorController::class, 'create'])->name('create');
+            Route::get('/majors/{id}/edit', [MajorController::class, 'edit'])->name('edit');
+            Route::put('/majors/{id}', [MajorController::class, 'update'])->name('update');
+            Route::delete('/majors/{id}', [MajorController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::name('extracurriculars.')->group(function () {
+            Route::get('/extracurriculars', [ExtracurricularController::class, 'index'])->name('index');
+            Route::post('/extracurriculars', [ExtracurricularController::class, 'store'])->name('store');
+            Route::get('/extracurriculars/create', [ExtracurricularController::class, 'create'])->name('create');
+            Route::get('/extracurriculars/{id}/edit', [ExtracurricularController::class, 'edit'])->name('edit');
+            Route::put('/extracurriculars/{id}', [ExtracurricularController::class, 'update'])->name('update');
+            Route::delete('/extracurriculars/{id}', [ExtracurricularController::class, 'destroy'])->name('destroy');
         });
 
         Route::name('facilities.')->group(function () {
@@ -102,6 +96,38 @@ Route::prefix('admin')
         Route::get('/profile/organization-structure', [SchoolProfileController::class, 'getOrganizationStructure'])->name('get-structure');
         Route::put('/profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
     });
+
+    Route::name('categories.')->group(function () {
+        Route::get('/categories', [CategoryController::class, 'index'])->name('index');
+        Route::post('/categories', [CategoryController::class, 'store'])->name('store');
+        Route::get('/categories/create', [CategoryController::class, 'create'])->name('create');
+        Route::get('/categories/{slug}/edit', [CategoryController::class, 'edit'])->name('edit');
+        Route::put('/categories/{slug}', [CategoryController::class, 'update'])->name('update');
+        Route::delete('/categories/{slug}', [CategoryController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::name('articles.')->group(function () {
+        Route::get('/articles', [ArticleController::class, 'index'])->name('index');
+        Route::post('/articles', [ArticleController::class, 'store'])->name('store');
+        Route::get('/articles/create', [ArticleController::class, 'create'])->name('create');
+        Route::get('/articles/{slug}/edit', [ArticleController::class, 'edit'])->name('edit');
+        Route::put('/articles/{slug}/status', [ArticleController::class, 'updateStatus'])->name('update-status');
+        Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('show');
+        Route::put('/articles/{slug}', [ArticleController::class, 'update'])->name('update');
+        Route::delete('/articles/{slug}', [ArticleController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::name('galleries.')->group(function () {
+        Route::get('/galleries', [GalleryController::class, 'index'])->name('index');
+        Route::post('/galleries', [GalleryController::class, 'store'])->name('store');
+        Route::get('/galleries/create', [GalleryController::class, 'create'])->name('create');
+        Route::delete('/galleries/image/{id}/delete', [GalleryController::class, 'deleteImage'])->name('delete-image');
+        Route::get('/galleries/{slug}/edit', [GalleryController::class, 'edit'])->name('edit');
+        Route::get('/galleries/{slug}', [GalleryController::class, 'show'])->name('show');
+        Route::put('/galleries/{slug}', [GalleryController::class, 'update'])->name('update');
+        Route::delete('/galleries/{slug}', [GalleryController::class, 'destroy'])->name('destroy');
+    });
+});
 
 Route::prefix('articles')->name('articles.')->group(function () {
     Route::get('/articles', [UserArticleController::class, 'index'])->name('index');
