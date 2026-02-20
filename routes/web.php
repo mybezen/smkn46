@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ExtracurricularController;
 use App\Http\Controllers\Admin\MajorController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\GalleryController;
@@ -26,9 +27,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('admin/dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::middleware('admin')->group(function () {
         Route::name('achievements.')->group(function () {
@@ -85,7 +84,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
             Route::put('/employees/{id}', [EmployeeController::class, 'update'])->name('update');
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
         });
-        
+
         Route::name('user.')->group(function () {
             Route::get('/users', [UserController::class, 'index'])->name('index');
             Route::get('/users/create', [UserController::class, 'create'])->name('create');
