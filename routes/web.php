@@ -14,19 +14,18 @@ use App\Http\Controllers\Admin\SchoolProfileController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\AchievementController as UserAchievementController;
 use App\Http\Controllers\ArticleController as UserArticleController;
 use App\Http\Controllers\FacilityController as UserFacilityController;
 use App\Http\Controllers\GalleryController as UserGalleryController;
 use App\Http\Controllers\EmployeeController as UserEmployeeController;
+use App\Http\Controllers\ExtracurricularController as UserExtracurricularController;
+use App\Http\Controllers\MajorController as UserMajorController;
 use App\Http\Controllers\SchoolProfileController as UserSchoolProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', [LandingController::class, 'index'])->name('home');
-
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
     // admin routes
     Route::middleware('admin')->group(function () {
         Route::name('achievements.')->group(function () {
@@ -111,6 +110,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
     });
 
     // admin and user routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::name('categories.')->group(function () {
         Route::get('/categories', [CategoryController::class, 'index'])->name('index');
         Route::post('/categories', [CategoryController::class, 'store'])->name('store');
@@ -144,6 +145,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
 });
 
 // public routes
+Route::get('/', [LandingController::class, 'index'])->name('home');
+
+Route::name('school-profile.')->group(function () {
+    Route::get('/profil', [UserSchoolProfileController::class, 'getProfile'])->name('profile');
+    Route::get('/visi-misi', [UserSchoolProfileController::class, 'getVisionMission'])->name('vision-mission');
+    Route::get('/sejarah', [UserSchoolProfileController::class, 'getHistory'])->name('history');
+    Route::get('/struktur-organisasi', [UserSchoolProfileController::class, 'getOrganizationStructure'])
+        ->name('organizational-structure');
+});
+
+Route::name('facilities.')->group(function () {
+    Route::get('/fasilitas', [UserFacilityController::class, 'index'])->name('index');
+    Route::get('/fasilitas/{slug}', [UserFacilityController::class, 'show'])->name('show');
+});
+
+Route::name('employees.')->group(function () {
+    Route::get('/guru-karyawan', [UserEmployeeController::class, 'index'])->name('index');
+});
+
 Route::name('articles.')->group(function () {
     Route::get('/artikel', [UserArticleController::class, 'index'])->name('index');
     Route::get('/artikel/{slug}', [UserArticleController::class, 'show'])->name('show');
@@ -154,21 +174,18 @@ Route::name('galleries.')->group(function () {
     Route::get('/galeri/{slug}', [UserGalleryController::class, 'show'])->name('show');
 });
 
-Route::name('facilities.')->group(function () {
-    Route::get('/fasilitas', [UserFacilityController::class, 'index'])->name('index');
-    Route::get('/fasilitas/{slug}', [UserFacilityController::class, 'show'])->name('show');
+Route::name('majors.')->group(function () {
+    Route::get('/program-keahlian', [UserMajorController::class, 'index'])->name('index');
+    Route::get('/program-keahlian/{slug}', [UserMajorController::class, 'show'])->name('show');
 });
 
-Route::name('school-profile')->group(function () {
-    Route::get('/profil', [UserSchoolProfileController::class, 'getProfile'])->name('profile');
-    Route::get('/visi-misi', [UserSchoolProfileController::class, 'getVisionMission'])->name('vision-mission');
-    Route::get('/sejarah', [UserSchoolProfileController::class, 'getHistory'])->name('history');
-    Route::get('/struktur-organisasi', [UserSchoolProfileController::class, 'getOrganizationStructure'])
-        ->name('organizational-structure');
+Route::name('achievements.')->group(function () {
+    Route::get('/akademik', [UserAchievementController::class, 'getAcademic'])->name('academic');
+    Route::get('/non-akademik', [UserAchievementController::class, 'getNonAcademic'])->name('non-academic');
 });
 
-Route::name('employees.')->group(function () {
-    Route::get('/guru-karyawan', [UserEmployeeController::class, 'index'])->name('index');
+Route::name('extracurricular.')->group(function () {
+    Route::get('/ekstrakurikuler', [UserExtracurricularController::class, 'index'])->name('index');
 });
 
 require __DIR__ . '/settings.php';
