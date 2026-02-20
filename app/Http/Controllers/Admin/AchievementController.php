@@ -27,15 +27,7 @@ class AchievementController extends Controller
 
         $achievements = $query->latest()
             ->paginate(10)
-            ->withQueryString()
-            ->through(fn ($achievement) => [
-                'id' => $achievement->id,
-                'title' => $achievement->title,
-                'description' => $achievement->description,
-                'thumbnail' => $achievement->thumbnail ? Storage::disk('public')->url($achievement->thumbnail) : null,
-                'category' => $achievement->category,
-                'created_at' => $achievement->created_at->format('d M Y'),
-            ]);
+            ->withQueryString();
 
         return Inertia::render('admin/achievements/index', [
             'achievements' => $achievements,
@@ -65,28 +57,37 @@ class AchievementController extends Controller
             ->with('success', 'Achievement created successfully.');
     }
 
-    public function edit(Achievement $achievement): Response
+    public function edit(string $id)
     {
+        $achievement = Achievement::find($id);
+
+        if (!$achievement) {
+            return redirect()->back()->with('error', 'Achievement not found.');
+        }
+
         return Inertia::render('admin/achievements/edit', [
-            'achievement' => [
-                'id' => $achievement->id,
-                'title' => $achievement->title,
-                'description' => $achievement->description,
-                'thumbnail' => $achievement->thumbnail ? Storage::disk('public')->url($achievement->thumbnail) : null,
-                'category' => $achievement->category,
-            ],
+            'achievement' => $achievement,
         ]);
     }
 
-    public function update(UpdateAchievementRequest $request, Achievement $achievement)
+    public function update(UpdateAchievementRequest $request, string $id)
     {
+        $achievement = Achievement::find($id);
+
+        if (!$achievement) {
+            return redirect()->back()->with('error', 'Achievement not found.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('thumbnail')) {
-            if ($achievement->thumbnail) {
+            if ($achievement->thumbnail && Storage::disk('public')->exists($achievement->thumbnail)) {
                 Storage::disk('public')->delete($achievement->thumbnail);
             }
+
             $data['thumbnail'] = $request->file('thumbnail')->store('achievements', 'public');
+        } else {
+            unset($data['thumbnail']);
         }
 
         $achievement->update($data);
@@ -95,9 +96,15 @@ class AchievementController extends Controller
             ->with('success', 'Achievement updated successfully.');
     }
 
-    public function destroy(Achievement $achievement)
+    public function destroy(string $id)
     {
-        if ($achievement->thumbnail) {
+        $achievement = Achievement::find($id);
+
+        if (!$achievement) {
+            return redirect()->back()->with('error', 'Achievement not found.');
+        }
+
+        if ($achievement->thumbnail && Storage::disk('public')->exists($achievement->thumbnail)) {
             Storage::disk('public')->delete($achievement->thumbnail);
         }
 
