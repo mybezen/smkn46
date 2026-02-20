@@ -8,8 +8,8 @@ use App\Models\Article;
 use App\Models\Employee;
 use App\Models\Gallery;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -43,16 +43,44 @@ class DashboardController extends Controller
         $employees = Employee::count();
         $galleries = Gallery::count();
 
+        // monthly chart
+        $months = collect(range(6, 0))->map(function (int $offset) {
+            return now()->subMonths($offset)->format('Y-m');
+        });
+
+        $articlesByMonth = Article::query()
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+            ->where('created_at', '>=', now()->subMonths(6)->startOfMonth())
+            ->groupBy('month')
+            ->pluck('count', 'month');
+
+        $usersByMonth = User::query()
+            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+            ->where('created_at', '>=', now()->subMonths(6)->startOfMonth())
+            ->groupBy('month')
+            ->pluck('count', 'month');
+
+        $monthlyChart = $months->map(function (string $ym) use ($articlesByMonth, $usersByMonth) {
+            // e.g. "2024-08" → "Aug"
+            $label = \Carbon\Carbon::createFromFormat('Y-m', $ym)->format('M');
+
+            return [
+                'month'    => $label,
+                'articles' => (int) ($articlesByMonth[$ym] ?? 0),
+                'users'    => (int) ($usersByMonth[$ym] ?? 0),
+            ];
+        })->values()->toArray();
+
         if (Auth::user()->is_admin) {
             return Inertia::render('admin/dashboard', [
                 'articles' => [
-                    'total' => $articles->total,
-                    'draft' => $articles->draft,
+                    'total'     => $articles->total,
+                    'draft'     => $articles->draft,
                     'published' => $articles->published,
                 ],
                 'achievements' => [
-                    'total' => $achievements->total,
-                    'academic' => $achievements->academic,
+                    'total'       => $achievements->total,
+                    'academic'    => $achievements->academic,
                     'non_academic' => $achievements->non_academic,
                 ],
                 'users' => [
@@ -60,17 +88,23 @@ class DashboardController extends Controller
                     'admin' => $users->admins,
                     'users' => $users->users,
                 ],
-                'employees' => $employees,
-                'galleries' => $galleries,
+                'employees'    => $employees,
+                'galleries'    => $galleries,
+                'monthly_chart' => $monthlyChart,
             ]);
         } else {
             return Inertia::render('admin/dashboard', [
                 'articles' => [
-                    'total' => $articles->total,
-                    'draft' => $articles->draft,
+                    'total'     => $articles->total,
+                    'draft'     => $articles->draft,
                     'published' => $articles->published,
                 ],
-                'galleries' => $galleries,
+                'galleries'    => $galleries,
+                // Non-admins still get article-only chart (users column will be 0)
+                'monthly_chart' => array_map(
+                    fn ($row) => ['month' => $row['month'], 'articles' => $row['articles'], 'users' => 0],
+                    $monthlyChart
+                ),
             ]);
         }
     }

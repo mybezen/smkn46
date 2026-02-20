@@ -7,14 +7,18 @@ use App\Http\Requests\Setting\UpdateSettingRequest;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SettingController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
         $setting = Setting::first();
         
-        return $setting;
+        return Inertia::render('admin/settings/index', [
+            'setting' => $setting,
+        ]);
     }
 
     public function update(UpdateSettingRequest $request)

@@ -16,6 +16,7 @@ import {
     ChevronRight,
     Building2,
     Users,
+    Settings,
 } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -128,6 +129,11 @@ const navItems: NavEntry[] = [
         title: 'Users',
         href: '/admin/users',
         icon: Users,
+    },
+    {
+        title: 'Settings',
+        href: '/admin/settings',
+        icon: Settings,
     },
 ];
 
