@@ -202,10 +202,28 @@ export function AppSidebar() {
     const user = props.auth?.user;
     const isAdmin = user?.is_admin ?? false;
 
-    const filteredNavItems = navItems.filter((item) => {
-        if (isAdmin) return true;
-        return item.title === 'Articles' || item.title === 'Galleries';
-    });
+    let filteredNavItems: NavEntry[];
+    if (isAdmin) {
+        filteredNavItems = navItems;
+    } else {
+        filteredNavItems = [
+            {
+                title: 'Dashboard',
+                href: '/admin/dashboard',
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Articles',
+                href: '/admin/articles',
+                icon: FileText,
+            },
+            {
+                title: 'Galleries',
+                href: '/admin/galleries',
+                icon: Images,
+            },
+        ];
+    }
 
     return (
         <Sidebar collapsible="icon" variant="floating">

@@ -45,3 +45,124 @@ export interface PaginatedData<T> {
     from: number;
     to: number;
 }
+
+
+export interface Category {
+    id: number;
+    name: string;
+    slug: string;
+}
+
+export interface Article {
+    id: number;
+    author_id: number;
+    category_id: number;
+    title: string;
+    slug: string;
+    content: string;
+    thumbnail: string | null;
+    is_published: boolean;
+    created_at: string;
+    updated_at: string;
+    author?: { id: number; name: string };
+    category?: { id: number; name: string; slug: string };
+}
+
+export interface Banner {
+    id: number;
+    title: string;
+    description: string | null;
+    image: string;
+    link: string | null;
+    is_active: boolean;
+    order: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Employee {
+    id: number;
+    name: string;
+    image: string | null;
+    position: string;
+    category: string | null;
+    order: number | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Extracurricular {
+    id: number;
+    name: string;
+    description: string | null;
+    thumbnail: string | null;
+    category: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Facility {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    image: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface GalleryImage {
+    id: number;
+    gallery_id: number;
+    image: string;
+}
+
+export interface Gallery {
+    id: number;
+    title: string;
+    slug: string;
+    description: string | null;
+    created_at: string;
+    updated_at: string;
+    images: GalleryImage[];
+}
+
+export interface Major {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    icon: string | null;
+    preview_image: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface SchoolProfile {
+    id: number;
+    type: string;
+    title: string;
+    content: string;
+    data: Record<string, unknown> | null;
+    main_image: string | null;
+    order: number | null;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Setting {
+    id: number;
+    school_name: string;
+    logo: string | null;
+    address: string | null;
+    phone: string | null;
+    email: string | null;
+    maps: string | null;
+    facebook_link: string | null;
+    instagram_link: string | null;
+    twitter_link: string | null;
+    youtube_link: string | null;
+    created_at: string;
+    updated_at: string;
+}
