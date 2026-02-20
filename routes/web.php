@@ -11,24 +11,23 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\FacilityController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\SchoolProfileController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\ArticleController as UserArticleController;
 use App\Http\Controllers\FacilityController as UserFacilityController;
 use App\Http\Controllers\GalleryController as UserGalleryController;
 use App\Http\Controllers\EmployeeController as UserEmployeeController;
+use App\Http\Controllers\SchoolProfileController as UserSchoolProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-use Laravel\Fortify\Features;
 
-Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
-})->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+    // admin routes
     Route::middleware('admin')->group(function () {
         Route::name('achievements.')->group(function () {
             Route::get('/achievements', [AchievementController::class, 'index'])->name('index');
@@ -85,13 +84,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
             Route::delete('/employees/{id}', [EmployeeController::class, 'destroy'])->name('destroy');
         });
 
-        Route::name('user.')->group(function () {
+        Route::name('users.')->group(function () {
             Route::get('/users', [UserController::class, 'index'])->name('index');
             Route::get('/users/create', [UserController::class, 'create'])->name('create');
             Route::post('/users', [UserController::class, 'store'])->name('store');
             Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('edit');
             Route::put('/users/{id}', [UserController::class, 'update'])->name('update');
             Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::name('settings.')->group(function () {
+            Route::get('/settings', [SettingController::class, 'index'])->name('index');
+            Route::put('/settings', [SettingController::class, 'update'])->name('update');
         });
 
         Route::get('/profile/headmaster', [SchoolProfileController::class, 'getHeadmaster'])->name('get-headmaster');
@@ -106,6 +110,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::put('/profile/organization-structure', [SchoolProfileController::class, 'updateOrganizationStructure'])->name('update-structure');
     });
 
+    // admin and user routes
     Route::name('categories.')->group(function () {
         Route::get('/categories', [CategoryController::class, 'index'])->name('index');
         Route::post('/categories', [CategoryController::class, 'store'])->name('store');
@@ -138,21 +143,32 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
     });
 });
 
-Route::prefix('articles')->name('articles.')->group(function () {
-    Route::get('/articles', [UserArticleController::class, 'index'])->name('index');
-    Route::get('/articles/{slug}', [UserArticleController::class, 'show'])->name('show');
+// public routes
+Route::name('articles.')->group(function () {
+    Route::get('/artikel', [UserArticleController::class, 'index'])->name('index');
+    Route::get('/artikel/{slug}', [UserArticleController::class, 'show'])->name('show');
 });
 
 Route::name('galleries.')->group(function () {
-    Route::get('/galleries', [UserGalleryController::class, 'index'])->name('index');
-    Route::get('/galleries/{slug}', [UserGalleryController::class, 'show'])->name('show');
+    Route::get('/galeri', [UserGalleryController::class, 'index'])->name('index');
+    Route::get('/galeri/{slug}', [UserGalleryController::class, 'show'])->name('show');
 });
 
 Route::name('facilities.')->group(function () {
-    Route::get('/facilities', [UserFacilityController::class, 'index'])->name('index');
-    Route::get('/facilities/{slug}', [UserFacilityController::class, 'show'])->name('show');
+    Route::get('/fasilitas', [UserFacilityController::class, 'index'])->name('index');
+    Route::get('/fasilitas/{slug}', [UserFacilityController::class, 'show'])->name('show');
 });
 
-Route::get('/guru-karyawan', [UserEmployeeController::class, 'index'])->name('index');
+Route::name('school-profile')->group(function () {
+    Route::get('/profil', [UserSchoolProfileController::class, 'getProfile'])->name('profile');
+    Route::get('/visi-misi', [UserSchoolProfileController::class, 'getVisionMission'])->name('vision-mission');
+    Route::get('/sejarah', [UserSchoolProfileController::class, 'getHistory'])->name('history');
+    Route::get('/struktur-organisasi', [UserSchoolProfileController::class, 'getOrganizationStructure'])
+        ->name('organizational-structure');
+});
+
+Route::name('employees.')->group(function () {
+    Route::get('/guru-karyawan', [UserEmployeeController::class, 'index'])->name('index');
+});
 
 require __DIR__ . '/settings.php';

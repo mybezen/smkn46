@@ -48,7 +48,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', 'User not found.');
         }
 
-    return Inertia::render('admin/users/show', [
+        return Inertia::render('admin/users/show', [
             'user' => $user,
         ]);
     }

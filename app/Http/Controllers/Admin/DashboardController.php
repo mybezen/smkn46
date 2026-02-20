@@ -35,7 +35,7 @@ class DashboardController extends Controller
         $users = User::query()
             ->selectRaw('
                 COUNT(*) as total,
-                COALESCE(SUM(is_admin = 0), 0) as editors,
+                COALESCE(SUM(is_admin = 0), 0) as users,
                 COALESCE(SUM(is_admin = 1), 0) as admins
             ')
             ->first();
@@ -58,7 +58,7 @@ class DashboardController extends Controller
                 'users' => [
                     'total' => $users->total,
                     'admin' => $users->admins,
-                    'editor' => $users->editors,
+                    'users' => $users->users,
                 ],
                 'employees' => $employees,
                 'galleries' => $galleries,
