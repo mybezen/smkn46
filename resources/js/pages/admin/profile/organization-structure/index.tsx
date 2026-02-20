@@ -4,19 +4,27 @@ import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
 import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useRef, useState, ChangeEvent } from 'react';
-import { Upload, Network, ImageIcon, CheckCircle2, Loader2, UserCircle2 } from 'lucide-react';
+import {
+    Upload,
+    Network,
+    ImageIcon,
+    CheckCircle2,
+    Loader2,
+    UserCircle2,
+} from 'lucide-react';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Position {
-    title: string;
-    name: string;
-    order: number;
+    title: string | null;
+    name: string | null;
+    order: number | string;
     image: string | null;
 }
 
@@ -36,23 +44,55 @@ interface PageProps {
 }
 
 interface PositionState {
-    title: string;
-    name: string;
+    title: string | null;
+    name: string | null;
     order: number;
     image: string | null;
     newImageFile: File | null;
     imagePreview: string | null;
 }
 
+// ─── Static layout definition ─────────────────────────────────────────────────
+
+const ORG_ROWS: { jabatan: string; order: number }[][] = [
+    [{ jabatan: 'Kepala Sekolah', order: 1 }],
+    [
+        { jabatan: 'Ketua Komite', order: 2 },
+        { jabatan: 'Kasubag Tata Usaha', order: 3 },
+    ],
+    [
+        { jabatan: 'Wakasekbid. Kurikulum', order: 4 },
+        { jabatan: 'Wakasekbid. Kesiswaan', order: 5 },
+        { jabatan: 'Wakasekbid. Hubin dan Kemitraan', order: 6 },
+        { jabatan: 'Wakasekbid. Sarana dan Prasarana', order: 7 },
+    ],
+    [
+        { jabatan: 'K3K Akuntansi', order: 8 },
+        { jabatan: 'K3K Perkantoran', order: 9 },
+        { jabatan: 'K3K Bisnis Ritel', order: 10 },
+        { jabatan: 'K3K DKV', order: 11 },
+        { jabatan: 'K3K RPL', order: 12 },
+    ],
+    [
+        { jabatan: 'Kepala Perpustakaan', order: 13 },
+        { jabatan: 'Pembina OSIS', order: 14 },
+        { jabatan: 'Ka. Unit Produksi', order: 15 },
+        { jabatan: 'Ka. Laboratorium', order: 16 },
+        { jabatan: 'Wali Kelas', order: 17 },
+        { jabatan: 'Guru & Tendik', order: 18 },
+    ],
+];
+
+const TOTAL_POSITIONS = 18;
+
+// ─── Animation variants ────────────────────────────────────────────────────────
+
 const containerVariants: Variants = {
     hidden: { opacity: 0, y: 16 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            duration: 0.4,
-            ease: easeOut,
-        },
+        transition: { duration: 0.4, ease: easeOut },
     },
 };
 
@@ -61,13 +101,167 @@ const cardVariants: Variants = {
     visible: (i: number) => ({
         opacity: 1,
         y: 0,
-        transition: {
-            duration: 0.35,
-            ease: easeOut,
-            delay: 0.05 * i,
-        },
+        transition: { duration: 0.35, ease: easeOut, delay: 0.04 * i },
     }),
 };
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function buildInitialPositions(
+    record: OrgStructureRecord | null,
+): PositionState[] {
+    const existing = record?.data?.positions ?? [];
+
+    // Map dari order (number) ke data posisi
+    // BE mengirim order sebagai string, jadi konversi ke number
+    const byOrder = new Map<number, Position>();
+    existing.forEach((p) => byOrder.set(Number(p.order), p));
+
+    return Array.from({ length: TOTAL_POSITIONS }, (_, i) => {
+        const order = i + 1;
+        const p = byOrder.get(order);
+        return {
+            title: p?.title ?? null,
+            name: p?.name ?? null,
+            order,
+            image: p?.image ?? null,
+            newImageFile: null,
+            // Jika ada image dari BE, gunakan /storage/ prefix
+            imagePreview: p?.image ? `/storage/${p.image}` : null,
+        };
+    });
+}
+
+// ─── Position Card ─────────────────────────────────────────────────────────────
+
+interface PositionCardProps {
+    pos: PositionState;
+    jabatan: string;
+    index: number;
+    animIndex: number;
+    onImageChange: (index: number, e: ChangeEvent<HTMLInputElement>) => void;
+    onNameChange: (index: number, value: string) => void;
+    fileInputRef: (el: HTMLInputElement | null) => void;
+    onUploadClick: () => void;
+    compact?: boolean;
+}
+
+function PositionCard({
+    pos,
+    jabatan,
+    index,
+    animIndex,
+    onImageChange,
+    onNameChange,
+    fileInputRef,
+    onUploadClick,
+    compact = false,
+}: PositionCardProps) {
+    return (
+        <motion.div
+            custom={animIndex}
+            variants={cardVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col"
+        >
+            <Card className="h-full rounded-2xl border-gray-200 py-0 shadow-sm transition-shadow duration-200 hover:shadow-md">
+                <CardContent
+                    className={`space-y-2 ${compact ? 'p-2.5' : 'p-3'}`}
+                >
+                    {/* Jabatan badge */}
+                    <div className="text-center">
+                        <span className="inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] leading-tight font-semibold text-blue-700">
+                            {jabatan}
+                        </span>
+                    </div>
+
+                    {/* Photo */}
+                    <div>
+                        {pos.imagePreview ? (
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                className="relative mb-1.5 aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
+                            >
+                                <img
+                                    src={pos.imagePreview}
+                                    alt={pos.name || jabatan}
+                                    className="h-full w-full object-cover"
+                                />
+                                {pos.newImageFile && (
+                                    <div className="absolute top-1 right-1">
+                                        <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                                            Baru
+                                        </span>
+                                    </div>
+                                )}
+                            </motion.div>
+                        ) : (
+                            <div className="mb-1.5 flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
+                                <ImageIcon className="h-5 w-5 text-gray-300" />
+                                <span className="text-[10px] text-gray-400">
+                                    Belum ada foto
+                                </span>
+                            </div>
+                        )}
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpg,image/jpeg,image/png,image/webp"
+                            onChange={(e) => onImageChange(index, e)}
+                            className="hidden"
+                        />
+
+                        <motion.div whileTap={{ scale: 0.97 }}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={onUploadClick}
+                                className="h-7 w-full rounded-xl border-gray-200 px-2 text-[10px] text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                            >
+                                <Upload className="mr-1 h-3 w-3" />
+                                {pos.imagePreview
+                                    ? 'Ganti Foto'
+                                    : 'Upload Foto'}
+                            </Button>
+                        </motion.div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Name input */}
+                    <div className="space-y-1">
+                        <Label className="text-[10px] font-medium text-gray-500">
+                            Nama
+                        </Label>
+                        <Input
+                            placeholder="Nama lengkap"
+                            value={pos.name ?? ''}
+                            onChange={(e) =>
+                                onNameChange(index, e.target.value)
+                            }
+                            className="h-8 rounded-xl border-gray-200 text-xs placeholder:text-xs focus:border-blue-400"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+}
+
+// ─── Connector line component ──────────────────────────────────────────────────
+
+function ConnectorLine() {
+    return (
+        <div className="flex justify-center py-1">
+            <div className="h-6 w-px bg-blue-200" />
+        </div>
+    );
+}
+
+// ─── Main component ────────────────────────────────────────────────────────────
 
 export default function OrganizationStructureIndex() {
     const { organizationStructure, flash } = usePage<PageProps>().props;
@@ -77,37 +271,31 @@ export default function OrganizationStructureIndex() {
     );
 
     const [positions, setPositions] = useState<PositionState[]>(
-        (organizationStructure?.data?.positions ?? []).map((p) => ({
-            title: p.title,
-            name: p.name,
-            order: p.order,
-            image: p.image,
-            newImageFile: null,
-            imagePreview: p.image ? `/storage/${p.image}` : null,
-        })),
+        buildInitialPositions(organizationStructure),
     );
 
     const [processing, setProcessing] = useState<boolean>(false);
     const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    const handleImageChange = (index: number, e: ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = (
+        index: number,
+        e: ChangeEvent<HTMLInputElement>,
+    ) => {
         const file = e.target.files?.[0];
         if (!file) return;
         const preview = URL.createObjectURL(file);
         setPositions((prev) =>
             prev.map((p, i) =>
-                i === index ? { ...p, newImageFile: file, imagePreview: preview } : p,
+                i === index
+                    ? { ...p, newImageFile: file, imagePreview: preview }
+                    : p,
             ),
         );
     };
 
-    const updatePosition = (
-        index: number,
-        field: 'title' | 'name',
-        value: string,
-    ) => {
+    const handleNameChange = (index: number, value: string) => {
         setPositions((prev) =>
-            prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+            prev.map((p, i) => (i === index ? { ...p, name: value } : p)),
         );
     };
 
@@ -117,7 +305,8 @@ export default function OrganizationStructureIndex() {
 
         const formData = new FormData();
         formData.append('_method', 'PUT');
-        if (sectionTitle) formData.append('title', sectionTitle);
+        // Selalu kirim title (wajib di BE)
+        formData.append('title', sectionTitle);
 
         positions.forEach((pos, index) => {
             formData.append(`positions[${index}][title]`, pos.title ?? '');
@@ -134,6 +323,8 @@ export default function OrganizationStructureIndex() {
         });
     };
 
+    let animCounter = 0;
+
     return (
         <AppLayout>
             <motion.div
@@ -144,16 +335,17 @@ export default function OrganizationStructureIndex() {
             >
                 {/* Page Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600 text-white shadow-sm">
-                            <Network className="w-5 h-5" />
+                    <div className="mb-2 flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
+                            <Network className="h-5 w-5" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-                                Organization Structure
+                            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                                Struktur Organisasi
                             </h1>
-                            <p className="text-sm text-gray-500 mt-0.5">
-                                Manage your school's organizational positions and members
+                            <p className="mt-0.5 text-sm text-gray-500">
+                                Kelola posisi dan anggota struktur organisasi
+                                sekolah
                             </p>
                         </div>
                     </div>
@@ -164,9 +356,9 @@ export default function OrganizationStructureIndex() {
                     <motion.div
                         initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-6 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm font-medium"
+                        className="mb-6 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700"
                     >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="h-4 w-4" />
                         {flash.success}
                     </motion.div>
                 )}
@@ -174,185 +366,314 @@ export default function OrganizationStructureIndex() {
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-6">
                         {/* Section Title */}
-                        <motion.div
-                            custom={0}
-                            variants={cardVariants}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            <Card className="rounded-2xl shadow-sm border-gray-200">
-                                <CardHeader className="pb-4">
-                                    <CardTitle className="text-base font-semibold text-gray-800">
-                                        Section Title
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-1.5">
-                                        <Label
-                                            htmlFor="section-title"
-                                            className="text-sm font-medium text-gray-700"
-                                        >
-                                            Title
-                                        </Label>
-                                        <Input
-                                            id="section-title"
-                                            placeholder="e.g. Our Organization Structure"
-                                            value={sectionTitle}
-                                            onChange={(e) => setSectionTitle(e.target.value)}
-                                            className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 max-w-xl"
-                                        />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                        <Card className="rounded-2xl border-gray-200 shadow-sm">
+                            <CardContent className="p-5">
+                                <div className="space-y-1.5">
+                                    <Label
+                                        htmlFor="section-title"
+                                        className="text-sm font-semibold text-gray-700"
+                                    >
+                                        Judul Seksi
+                                    </Label>
+                                    <Input
+                                        id="section-title"
+                                        name="title"
+                                        placeholder="contoh: Struktur Organisasi Sekolah"
+                                        value={sectionTitle}
+                                        onChange={(e) =>
+                                            setSectionTitle(e.target.value)
+                                        }
+                                        className="max-w-xl rounded-xl border-gray-200 focus:border-blue-400"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                        {/* Positions Info Banner */}
-                        {positions.length > 0 && (
-                            <div className="flex items-center gap-2 px-4 py-3 bg-blue-50 border border-blue-100 rounded-xl text-blue-600 text-sm">
-                                <Network className="w-4 h-4 flex-shrink-0" />
-                                <span>
-                                    <strong>{positions.length}</strong> position
-                                    {positions.length !== 1 ? 's' : ''} — positions are fixed and
-                                    cannot be reordered or removed.
-                                </span>
-                            </div>
-                        )}
+                        {/* ── CHART ── */}
+                        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                            <p className="mb-6 text-center text-xs font-semibold tracking-widest text-gray-400 uppercase">
+                                Bagan Struktur Organisasi
+                            </p>
 
-                        {/* Positions Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                            {positions.map((pos, index) => (
+                            <div className="flex min-w-[640px] flex-col items-center gap-0">
+                                {/* ── Row 1: Kepala Sekolah ── */}
+                                {(() => {
+                                    const row = ORG_ROWS[0];
+                                    return (
+                                        <div className="flex w-full justify-center gap-4">
+                                            {row.map(({ jabatan, order }) => {
+                                                const idx = order - 1;
+                                                const ai = animCounter++;
+                                                return (
+                                                    <div
+                                                        key={order}
+                                                        className="w-44"
+                                                    >
+                                                        <PositionCard
+                                                            pos={positions[idx]}
+                                                            jabatan={jabatan}
+                                                            index={idx}
+                                                            animIndex={ai}
+                                                            onImageChange={
+                                                                handleImageChange
+                                                            }
+                                                            onNameChange={
+                                                                handleNameChange
+                                                            }
+                                                            fileInputRef={(
+                                                                el,
+                                                            ) => {
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ] = el;
+                                                            }}
+                                                            onUploadClick={() =>
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ]?.click()
+                                                            }
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+
+                                <ConnectorLine />
+
+                                {/* ── Row 2: Ketua Komite & Kasubag TU ── */}
+                                {(() => {
+                                    const row = ORG_ROWS[1];
+                                    return (
+                                        <>
+                                            <div className="mb-0 flex w-full items-center justify-center">
+                                                <div className="flex flex-1 justify-end pr-0">
+                                                    <div className="h-px w-[25%] bg-blue-200" />
+                                                </div>
+                                                <div className="h-0 w-px bg-blue-200" />
+                                                <div className="flex flex-1 justify-start pl-0">
+                                                    <div className="h-px w-[25%] bg-blue-200" />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex w-full justify-center gap-24">
+                                                {row.map(
+                                                    ({ jabatan, order }) => {
+                                                        const idx = order - 1;
+                                                        const ai =
+                                                            animCounter++;
+                                                        return (
+                                                            <div
+                                                                key={order}
+                                                                className="flex flex-col items-center"
+                                                            >
+                                                                <div className="h-4 w-px bg-blue-200" />
+                                                                <div className="w-40">
+                                                                    <PositionCard
+                                                                        pos={
+                                                                            positions[
+                                                                                idx
+                                                                            ]
+                                                                        }
+                                                                        jabatan={
+                                                                            jabatan
+                                                                        }
+                                                                        index={
+                                                                            idx
+                                                                        }
+                                                                        animIndex={
+                                                                            ai
+                                                                        }
+                                                                        onImageChange={
+                                                                            handleImageChange
+                                                                        }
+                                                                        onNameChange={
+                                                                            handleNameChange
+                                                                        }
+                                                                        fileInputRef={(
+                                                                            el,
+                                                                        ) => {
+                                                                            fileInputRefs.current[
+                                                                                idx
+                                                                            ] =
+                                                                                el;
+                                                                        }}
+                                                                        onUploadClick={() =>
+                                                                            fileInputRefs.current[
+                                                                                idx
+                                                                            ]?.click()
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    },
+                                                )}
+                                            </div>
+                                        </>
+                                    );
+                                })()}
+
+                                <ConnectorLine />
+
+                                {/* ── Row 3: 4 Wakasekbid ── */}
+                                {(() => {
+                                    const row = ORG_ROWS[2];
+                                    return (
+                                        <div className="flex w-full flex-wrap justify-center gap-3">
+                                            {row.map(({ jabatan, order }) => {
+                                                const idx = order - 1;
+                                                const ai = animCounter++;
+                                                return (
+                                                    <div
+                                                        key={order}
+                                                        className="w-36"
+                                                    >
+                                                        <PositionCard
+                                                            pos={positions[idx]}
+                                                            jabatan={jabatan}
+                                                            index={idx}
+                                                            animIndex={ai}
+                                                            onImageChange={
+                                                                handleImageChange
+                                                            }
+                                                            onNameChange={
+                                                                handleNameChange
+                                                            }
+                                                            fileInputRef={(
+                                                                el,
+                                                            ) => {
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ] = el;
+                                                            }}
+                                                            onUploadClick={() =>
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ]?.click()
+                                                            }
+                                                            compact
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+
+                                <ConnectorLine />
+
+                                {/* ── Row 4: 5 K3K ── */}
+                                {(() => {
+                                    const row = ORG_ROWS[3];
+                                    return (
+                                        <div className="flex w-full flex-wrap justify-center gap-2.5">
+                                            {row.map(({ jabatan, order }) => {
+                                                const idx = order - 1;
+                                                const ai = animCounter++;
+                                                return (
+                                                    <div
+                                                        key={order}
+                                                        className="w-36"
+                                                    >
+                                                        <PositionCard
+                                                            pos={positions[idx]}
+                                                            jabatan={jabatan}
+                                                            index={idx}
+                                                            animIndex={ai}
+                                                            onImageChange={
+                                                                handleImageChange
+                                                            }
+                                                            onNameChange={
+                                                                handleNameChange
+                                                            }
+                                                            fileInputRef={(
+                                                                el,
+                                                            ) => {
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ] = el;
+                                                            }}
+                                                            onUploadClick={() =>
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ]?.click()
+                                                            }
+                                                            compact
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+
+                                <ConnectorLine />
+
+                                {/* ── Row 5: 6 posisi ── */}
+                                {(() => {
+                                    const row = ORG_ROWS[4];
+                                    return (
+                                        <div className="flex w-full flex-wrap justify-center gap-2.5">
+                                            {row.map(({ jabatan, order }) => {
+                                                const idx = order - 1;
+                                                const ai = animCounter++;
+                                                return (
+                                                    <div
+                                                        key={order}
+                                                        className="w-[150px]"
+                                                    >
+                                                        <PositionCard
+                                                            pos={positions[idx]}
+                                                            jabatan={jabatan}
+                                                            index={idx}
+                                                            animIndex={ai}
+                                                            onImageChange={
+                                                                handleImageChange
+                                                            }
+                                                            onNameChange={
+                                                                handleNameChange
+                                                            }
+                                                            fileInputRef={(
+                                                                el,
+                                                            ) => {
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ] = el;
+                                                            }}
+                                                            onUploadClick={() =>
+                                                                fileInputRefs.current[
+                                                                    idx
+                                                                ]?.click()
+                                                            }
+                                                            compact
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })()}
+
+                                <ConnectorLine />
+
+                                {/* ── Row 6: Peserta Didik (display only) ── */}
                                 <motion.div
-                                    key={index}
-                                    custom={index + 1}
+                                    custom={animCounter++}
                                     variants={cardVariants}
                                     initial="hidden"
                                     animate="visible"
                                 >
-                                    <Card className="rounded-2xl shadow-sm border-gray-200 h-full">
-                                        <CardHeader className="pb-3">
-                                            <div className="flex items-center justify-between">
-                                                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                                                    <UserCircle2 className="w-4 h-4 text-blue-500" />
-                                                    Position #{pos.order}
-                                                </CardTitle>
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="bg-gray-100 text-gray-500 text-xs font-normal"
-                                                >
-                                                    Order: {pos.order}
-                                                </Badge>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            {/* Image */}
-                                            <div>
-                                                {pos.imagePreview ? (
-                                                    <motion.div
-                                                        whileHover={{ y: -4 }}
-                                                        className="relative rounded-xl overflow-hidden border border-gray-200 aspect-square bg-gray-50 mb-2"
-                                                    >
-                                                        <img
-                                                            src={pos.imagePreview}
-                                                            alt={pos.name || 'Position'}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                        {pos.newImageFile && (
-                                                            <div className="absolute top-2 right-2">
-                                                                <Badge className="bg-blue-600 text-white text-xs">
-                                                                    New
-                                                                </Badge>
-                                                            </div>
-                                                        )}
-                                                    </motion.div>
-                                                ) : (
-                                                    <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 aspect-square bg-gray-50 gap-1.5 mb-2">
-                                                        <ImageIcon className="w-6 h-6 text-gray-300" />
-                                                        <span className="text-xs text-gray-400">
-                                                            No photo
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                <input
-                                                    ref={(el) => {
-                                                        fileInputRefs.current[index] = el;
-                                                    }}
-                                                    type="file"
-                                                    accept="image/jpg,image/jpeg,image/png,image/webp"
-                                                    onChange={(e) => handleImageChange(index, e)}
-                                                    className="hidden"
-                                                />
-                                                <motion.div whileTap={{ scale: 0.98 }}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            fileInputRefs.current[index]?.click()
-                                                        }
-                                                        className="w-full rounded-xl border-gray-200 text-gray-600 hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 transition-colors text-xs h-8"
-                                                    >
-                                                        <Upload className="w-3.5 h-3.5 mr-1.5" />
-                                                        {pos.imagePreview
-                                                            ? 'Replace Photo'
-                                                            : 'Upload Photo'}
-                                                    </Button>
-                                                </motion.div>
-                                            </div>
-
-                                            <Separator className="my-1" />
-
-                                            {/* Position Title */}
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs font-medium text-gray-600">
-                                                    Position Title
-                                                </Label>
-                                                <Input
-                                                    placeholder="e.g. Principal"
-                                                    value={pos.title}
-                                                    onChange={(e) =>
-                                                        updatePosition(
-                                                            index,
-                                                            'title',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 text-sm h-9"
-                                                />
-                                            </div>
-
-                                            {/* Name */}
-                                            <div className="space-y-1.5">
-                                                <Label className="text-xs font-medium text-gray-600">
-                                                    Person's Name
-                                                </Label>
-                                                <Input
-                                                    placeholder="e.g. John Doe"
-                                                    value={pos.name}
-                                                    onChange={(e) =>
-                                                        updatePosition(
-                                                            index,
-                                                            'name',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400/20 text-sm h-9"
-                                                />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                    <div className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 px-8 py-4 text-white shadow-md shadow-blue-100">
+                                        <UserCircle2 className="h-5 w-5 opacity-80" />
+                                        <span className="text-base font-bold tracking-wide">
+                                            Peserta Didik
+                                        </span>
+                                    </div>
                                 </motion.div>
-                            ))}
-                        </div>
-
-                        {positions.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-16 rounded-2xl border-2 border-dashed border-gray-200 bg-white">
-                                <Network className="w-10 h-10 text-gray-300 mb-3" />
-                                <p className="text-gray-500 font-medium">No positions found</p>
-                                <p className="text-gray-400 text-sm mt-1">
-                                    Positions are managed from the backend.
-                                </p>
                             </div>
-                        )}
+                        </div>
 
                         {/* Submit */}
                         <div className="flex justify-end pt-2">
@@ -360,15 +681,15 @@ export default function OrganizationStructureIndex() {
                                 <Button
                                     type="submit"
                                     disabled={processing}
-                                    className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium h-11 px-8 shadow-sm shadow-blue-200"
+                                    className="h-11 rounded-xl bg-blue-600 px-8 font-medium text-white shadow-sm shadow-blue-200 hover:bg-blue-700"
                                 >
                                     {processing ? (
                                         <>
-                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Saving...
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Menyimpan...
                                         </>
                                     ) : (
-                                        'Save Changes'
+                                        'Simpan Perubahan'
                                     )}
                                 </Button>
                             </motion.div>
