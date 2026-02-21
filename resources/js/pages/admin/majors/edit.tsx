@@ -13,10 +13,11 @@ import { BreadcrumbItem } from '@/types';
 interface Major {
     id: number;
     name: string;
-    slug: string;
     description: string;
     icon: string | null;
     preview_image: string | null;
+    icon_url: string | null;
+    preview_image_url: string | null;
 }
 
 interface Props {
@@ -44,6 +45,15 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Majors', href: '/admin/majors' },
 ];
 
+const generateSlug = (name: string) => {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+};
+
 export default function edit({ major }: Props) {
     const [formData, setFormData] = useState<FormData>({
         name: major.name,
@@ -53,13 +63,19 @@ export default function edit({ major }: Props) {
         preview_image: null,
     });
     const [errors, setErrors] = useState<Errors>({});
-    const [iconPreview, setIconPreview] = useState<string | null>(major.icon);
-    const [previewImagePreview, setPreviewImagePreview] = useState<string | null>(major.preview_image);
+    const [iconPreview, setIconPreview] = useState<string | null>(major.icon_url);
+    const [previewImagePreview, setPreviewImagePreview] = useState<string | null>(major.preview_image_url);
     const [submitting, setSubmitting] = useState(false);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => {
+            const updated = { ...prev, [name]: value };
+            if (name === 'name') {
+                updated.slug = generateSlug(value);
+            }
+            return updated;
+        });
         setErrors((prev) => ({ ...prev, [name]: undefined }));
     };
 
@@ -88,12 +104,11 @@ export default function edit({ major }: Props) {
         const data = new FormData();
         data.append('_method', 'PUT');
         data.append('name', formData.name);
-        data.append('slug', formData.slug);
         data.append('description', formData.description);
         if (formData.icon) data.append('icon', formData.icon);
         if (formData.preview_image) data.append('preview_image', formData.preview_image);
 
-        router.post('/admin/majors/' + major.id, data, {
+        router.post('/admin/majors/' + major.slug, data, {
             onError: (errors) => {
                 setErrors(errors as Errors);
                 setSubmitting(false);
@@ -148,15 +163,26 @@ export default function edit({ major }: Props) {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="slug">Slug</Label>
-                                    <Input
-                                        id="slug"
-                                        name="slug"
-                                        value={formData.slug}
-                                        onChange={handleInputChange}
-                                        className={errors.slug ? 'border-red-500' : ''}
-                                    />
-                                    {errors.slug && (
-                                        <p className="text-sm text-red-600">{errors.slug}</p>
+                                    <div className="relative">
+                                        <Input
+                                            id="slug"
+                                            name="slug"
+                                            value={formData.slug}
+                                            readOnly
+                                            className="bg-gray-50 text-gray-500 cursor-not-allowed border-gray-200 pr-16"
+                                            placeholder="Auto-generated from name..."
+                                        />
+                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                            auto
+                                        </span>
+                                    </div>
+                                    {formData.slug && (
+                                        <p className="text-xs text-gray-500">
+                                            Preview:{' '}
+                                            <span className="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                                /majors/{formData.slug}
+                                            </span>
+                                        </p>
                                     )}
                                 </div>
                             </div>

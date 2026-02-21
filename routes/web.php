@@ -50,9 +50,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
             Route::get('/majors', [MajorController::class, 'index'])->name('index');
             Route::post('/majors', [MajorController::class, 'store'])->name('store');
             Route::get('/majors/create', [MajorController::class, 'create'])->name('create');
-            Route::get('/majors/{id}/edit', [MajorController::class, 'edit'])->name('edit');
-            Route::put('/majors/{id}', [MajorController::class, 'update'])->name('update');
-            Route::delete('/majors/{id}', [MajorController::class, 'destroy'])->name('destroy');
+            Route::get('/majors/{slug}/edit', [MajorController::class, 'edit'])->name('edit');
+            Route::put('/majors/{slug}', [MajorController::class, 'update'])->name('update');
+            Route::delete('/majors/{slug}', [MajorController::class, 'destroy'])->name('destroy');
         });
 
         Route::name('extracurriculars.')->group(function () {

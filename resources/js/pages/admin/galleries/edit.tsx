@@ -21,7 +21,8 @@ import type { Variants } from 'motion/react';
 
 interface GalleryImage {
     id: number;
-    image: string;
+    image: string | null;
+    image_url: string | null;
 }
 
 interface Gallery {
@@ -249,7 +250,7 @@ export default function GalleriesEdit({ gallery }: Props) {
                                                             exit="exit"
                                                             className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-200"
                                                         >
-                                                            <img src={`/storage/${img.image}`} alt="Gallery image" className="w-full h-full object-cover" />
+                                                            <img src={img.image_url} alt="Gallery image" className="w-full h-full object-cover" />
                                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />
                                                             <button
                                                                 type="button"

@@ -34,6 +34,7 @@ interface VisionMissionRecord {
     title: string | null;
     data: VisionMissionData | null;
     main_image: string | null;
+    main_image_url: string | null;
 }
 
 interface PageProps {
@@ -90,7 +91,7 @@ export default function VisionMissionIndex() {
     const [motto, setMotto] = useState<string>(visionMission?.data?.motto ?? '');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(
-        visionMission?.main_image ? `/storage/${visionMission.main_image}` : null,
+        visionMission?.main_image ? visionMission.main_image_url : null,
     );
     const [processing, setProcessing] = useState<boolean>(false);
 

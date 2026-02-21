@@ -18,20 +18,55 @@ class Major extends Model
         'preview_image',
     ];
 
+    protected $appends = [
+        'icon_url',
+        'preview_image_url',
+    ];
+
+    public function getIconUrlAttribute()
+    {
+        if (!$this->icon) {
+            return null;
+        }
+
+        return asset('storage/' . $this->icon);
+    }
+
+    public function getPreviewImageUrlAttribute()
+    {
+        if (!$this->preview_image) {
+            return null;
+        }
+
+        return asset('storage/' . $this->preview_image);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
-        static::creating(function ($major) {
-            if (empty($major->slug)) {
-                $major->slug = Str::slug($major->name);
+        static::saving(function ($major) {
+            if ($major->isDirty('name')) {
+                $major->slug = static::generateUniqueSlug($major->name, $major->id);
             }
         });
+    }
 
-        static::updating(function ($major) {
-            if ($major->isDirty('name') && empty($major->slug)) {
-                $major->slug = Str::slug($major->name);
-            }
-        });
+    protected static function generateUniqueSlug(string $name, $ignoreId = null): string
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (
+            static::where('slug', $slug)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()
+        ) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 }

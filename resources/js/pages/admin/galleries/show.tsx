@@ -9,7 +9,8 @@ import type { Variants } from 'motion/react';
 
 interface GalleryImage {
     id: number;
-    image: string;
+    image: string | null;
+    image_url: string | null;
 }
 
 interface Gallery {
@@ -121,7 +122,7 @@ export default function GalleriesShow({ gallery }: Props) {
                                                     transition={{ duration: 0.2 }}
                                                 >
                                                     <img
-                                                        src={`/storage/${img.image}`}
+                                                        src={img.image_url}
                                                         alt="Gallery image"
                                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     />

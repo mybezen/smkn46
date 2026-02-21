@@ -30,6 +30,7 @@ interface Extracurricular {
     description: string;
     category: 'olahraga' | 'seni' | 'akademik' | 'lainnya';
     thumbnail: string | null;
+    thumbnail_url: string | null;
     created_at: string;
 }
 
@@ -185,7 +186,7 @@ export default function index({ extracurriculars, filters }: Props) {
                                                             <div className="flex items-center gap-3">
                                                                 {extracurricular.thumbnail ? (
                                                                     <img
-                                                                        src={extracurricular.thumbnail}
+                                                                        src={extracurricular.thumbnail_url}
                                                                         alt={extracurricular.name}
                                                                         className="w-12 h-12 rounded-lg object-cover"
                                                                     />
@@ -215,7 +216,7 @@ export default function index({ extracurriculars, filters }: Props) {
                                                                     asChild
                                                                     className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
                                                                 >
-                                                                    <Link href={`/admin/extracurricular/${extracurricular.id}/edit`}>
+                                                                    <Link href={`/admin/extracurriculars/${extracurricular.id}/edit`}>
                                                                         <Pencil className="w-4 h-4" />
                                                                     </Link>
                                                                 </Button>

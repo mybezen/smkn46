@@ -35,6 +35,7 @@ interface Setting {
     id: number;
     school_name: string | null;
     logo: string | null;
+    logo_url: string | null;
     address: string | null;
     phone: string | null;
     email: string | null;
@@ -135,7 +136,7 @@ export default function SettingsIndex({ setting }: Props) {
     };
 
     const currentLogo = setting?.logo
-        ? `/storage/${setting.logo}`
+        ? setting.logo_url
         : null;
 
     return (

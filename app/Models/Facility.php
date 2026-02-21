@@ -12,4 +12,17 @@ class Facility extends Model
         'description',
         'image',
     ];
+    
+    protected $appends = [
+        'image_url',
+    ];
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        return asset('storage/' . $this->image);
+    }
 }

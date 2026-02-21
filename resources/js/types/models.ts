@@ -63,6 +63,7 @@ export interface Article {
     slug: string;
     content: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     is_published: boolean;
     created_at: string;
     updated_at: string;
@@ -86,6 +87,7 @@ export interface Employee {
     id: number;
     name: string;
     image: string | null;
+    image_url: string | null;
     position: string;
     category: string | null;
     order: number | null;
@@ -98,6 +100,7 @@ export interface Extracurricular {
     name: string;
     description: string | null;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     category: string | null;
     created_at: string;
     updated_at: string;
@@ -109,6 +112,7 @@ export interface Facility {
     slug: string;
     description: string | null;
     image: string | null;
+    image_url: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -136,6 +140,8 @@ export interface Major {
     description: string | null;
     icon: string | null;
     preview_image: string | null;
+    icon_url: string | null;
+    preview_image_url: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -147,6 +153,7 @@ export interface SchoolProfile {
     content: string;
     data: Record<string, unknown> | null;
     main_image: string | null;
+    main_image_url: string | null;
     order: number | null;
     is_active: boolean;
     created_at: string;
@@ -157,6 +164,7 @@ export interface Setting {
     id: number;
     school_name: string;
     logo: string | null;
+    logo_url: string | null;
     address: string | null;
     phone: string | null;
     email: string | null;

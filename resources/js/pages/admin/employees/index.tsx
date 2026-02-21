@@ -35,6 +35,7 @@ interface Employee {
     id: number;
     name: string;
     image: string | null;
+    image_url: string | null;
     position: string;
     category: EmployeeCategory;
     display_order: number;
@@ -207,7 +208,7 @@ export default function EmployeesIndex({ employees, filters }: Props) {
                                                 <td className="px-6 py-4">
                                                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
                                                         {employee.image ? (
-                                                            <img src={`/storage/${employee.image}`} alt={employee.name} className="w-full h-full object-cover" />
+                                                            <img src={employee.image_url} alt={employee.name} className="w-full h-full object-cover" />
                                                         ) : (
                                                             <Users className="w-5 h-5 text-gray-300" />
                                                         )}

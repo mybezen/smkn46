@@ -57,7 +57,7 @@ export default function ProfileIndex() {
     const [content, setContent] = useState<string>(profile?.content ?? '');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(
-        profile?.main_image ? `/storage/${profile.main_image}` : null,
+        profile?.main_image ? profile.main_image_url : null,
     );
     const [processing, setProcessing] = useState<boolean>(false);
 

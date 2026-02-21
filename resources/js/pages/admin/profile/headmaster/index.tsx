@@ -17,6 +17,7 @@ interface HeadmasterData {
     title: string | null;
     content: string | null;
     main_image: string | null;
+    main_image_url: string | null;
 }
 
 interface PageProps {
@@ -57,7 +58,7 @@ export default function HeadmasterIndex() {
     const [content, setContent] = useState<string>(headmaster?.content ?? '');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(
-        headmaster?.main_image ? `/storage/${headmaster.main_image}` : null,
+        headmaster?.main_image ? headmaster.main_image_url : null,
     );
     const [processing, setProcessing] = useState<boolean>(false);
 

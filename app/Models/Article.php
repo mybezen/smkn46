@@ -16,6 +16,19 @@ class Article extends Model
         'is_published',
     ];
 
+    protected $appends = [
+        'thumbnail_url',
+    ];
+
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail) {
+            return null;
+        }
+
+        return asset('storage/' . $this->thumbnail);
+    }
+
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id', 'id');

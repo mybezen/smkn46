@@ -22,6 +22,7 @@ interface Employee {
     id: number;
     name: string;
     image: string | null;
+    image_url: string | null;
     position: string;
     category: EmployeeCategory;
     display_order: number;
@@ -101,7 +102,7 @@ export default function EmployeesEdit() {
     };
 
     // New preview if selected, else existing storage image, else null (no photo)
-    const displayImage = imagePreview ?? (employee.image ? `/storage/${employee.image}` : null);
+    const displayImage = imagePreview ?? (employee.image_url);
 
     return (
         <AppLayout>

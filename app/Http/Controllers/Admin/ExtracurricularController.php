@@ -17,24 +17,16 @@ class ExtracurricularController extends Controller
     {
         $query = Extracurricular::query();
 
-        if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category', $request->category);
-        }
-
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->filled('category') && $request->category !== 'all') {
+            $query->where('category', $request->category);
+        }
+
         $extracurriculars = $query->latest()
-            ->paginate(10)
-            ->through(fn($item) => [
-                'id' => $item->id,
-                'name' => $item->name,
-                'description' => $item->description,
-                'category' => $item->category,
-                'thumbnail' => $item->thumbnail ? Storage::disk('public')->url($item->thumbnail) : null,
-                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-            ]);
+            ->paginate(10);
 
         return Inertia::render('admin/extracurriculars/index', [
             'extracurriculars' => $extracurriculars,
@@ -58,35 +50,44 @@ class ExtracurricularController extends Controller
             $data['thumbnail'] = $request->file('thumbnail')->store('extracurricular/thumbnails', 'public');
         }
 
-            Extracurricular::create($data);
+        Extracurricular::create($data);
 
         return redirect()
             ->route('admin.extracurriculars.index')
             ->with('success', 'Extracurricular created successfully.');
     }
 
-    public function edit(Extracurricular $extracurricular): Response
+    public function edit(string $id)
     {
+        $extracurricular = Extracurricular::find($id);
+
+        if (!$extracurricular) {
+            return redirect()->back()->with('error', 'Extracurricular not found.');
+        }
+
         return Inertia::render('admin/extracurriculars/edit', [
-            'extracurricular' => [
-                'id' => $extracurricular->id,
-                'name' => $extracurricular->name,
-                'description' => $extracurricular->description,
-                'category' => $extracurricular->category,
-                'thumbnail' => $extracurricular->thumbnail ? Storage::disk('public')->url($extracurricular->thumbnail) : null,
-            ],
+            'extracurricular' => $extracurricular,
         ]);
     }
 
-    public function update(UpdateExtracurricularRequest $request, Extracurricular $extracurricular)
+    public function update(UpdateExtracurricularRequest $request, string $id)
     {
+        $extracurricular = Extracurricular::find($id);
+
+        if (!$extracurricular) {
+            return redirect()->back()->with('error', 'Extracurricular not found.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('thumbnail')) {
-            if ($extracurricular->thumbnail) {
+            if ($extracurricular->thumbnail && Storage::disk('public')->exists($extracurricular->thumbnail)) {
                 Storage::disk('public')->delete($extracurricular->thumbnail);
             }
+
             $data['thumbnail'] = $request->file('thumbnail')->store('extracurricular/thumbnails', 'public');
+        } else {
+            unset($data['thumbnail']);
         }
 
         $extracurricular->update($data);
@@ -96,9 +97,15 @@ class ExtracurricularController extends Controller
             ->with('success', 'Extracurricular updated successfully.');
     }
 
-    public function destroy(Extracurricular $extracurricular)
+    public function destroy(string $id)
     {
-        if ($extracurricular->thumbnail) {
+        $extracurricular = Extracurricular::find($id);
+
+        if (!$extracurricular) {
+            return redirect()->back()->with('error', 'Extracurricular not found.');
+        }
+
+        if ($extracurricular->thumbnail && Storage::disk('public')->exists($extracurricular->thumbnail)) {
             Storage::disk('public')->delete($extracurricular->thumbnail);
         }
 

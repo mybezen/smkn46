@@ -15,7 +15,6 @@ class StoreMajorRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|unique:majors,slug',
             'description' => 'required|string',
             'icon' => 'nullable|image|max:2048',
             'preview_image' => 'nullable|image|max:4096',

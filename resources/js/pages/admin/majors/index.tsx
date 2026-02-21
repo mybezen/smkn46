@@ -23,6 +23,8 @@ interface Major {
     description: string;
     icon: string | null;
     preview_image: string | null;
+    icon_url: string | null;
+    preview_image_url: string | null;
     created_at: string;
 }
 
@@ -118,7 +120,7 @@ export default function index({ majors }: Props) {
                                                         <div className="flex items-center gap-3">
                                                             {major.icon ? (
                                                                 <img
-                                                                    src={major.icon}
+                                                                    src={major.icon_url}
                                                                     alt={major.name}
                                                                     className="w-10 h-10 rounded-lg object-cover"
                                                                 />
@@ -164,14 +166,14 @@ export default function index({ majors }: Props) {
                                                                 asChild
                                                                 className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
                                                             >
-                                                                <Link href={`/admin/majors/${major.id}/edit`}>
+                                                                <Link href={`/admin/majors/${major.slug}/edit`}>
                                                                     <Pencil className="w-4 h-4" />
                                                                 </Link>
                                                             </Button>
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                onClick={() => setDeleteDialog(major.id)}
+                                                                onClick={() => setDeleteDialog(major.slug)}
                                                                 className="hover:bg-red-50 hover:text-red-600 hover:border-red-300"
                                                             >
                                                                 <Trash2 className="w-4 h-4" />

@@ -15,16 +15,7 @@ class MajorController extends Controller
     public function index(): Response
     {
         $majors = Major::latest()
-            ->paginate(10)
-            ->through(fn($item) => [
-                'id' => $item->id,
-                'name' => $item->name,
-                'slug' => $item->slug,
-                'description' => $item->description,
-                'icon' => $item->icon ? Storage::disk('public')->url($item->icon) : null,
-                'preview_image' => $item->preview_image ? Storage::disk('public')->url($item->preview_image) : null,
-                'created_at' => $item->created_at->format('Y-m-d H:i:s'),
-            ]);
+            ->paginate(10);
 
         return Inertia::render('admin/majors/index', [
             'majors' => $majors,
@@ -55,36 +46,47 @@ class MajorController extends Controller
             ->with('success', 'Major created successfully.');
     }
 
-    public function edit(Major $major): Response
+    public function edit(string $slug)
     {
+        $major = Major::where('slug', $slug)->first();
+
+        if (!$major) {
+            return redirect()->back()->with('error', 'Major not found.');
+        }
+
         return Inertia::render('admin/majors/edit', [
-            'major' => [
-                'id' => $major->id,
-                'name' => $major->name,
-                'slug' => $major->slug,
-                'description' => $major->description,
-                'icon' => $major->icon ? Storage::disk('public')->url($major->icon) : null,
-                'preview_image' => $major->preview_image ? Storage::disk('public')->url($major->preview_image) : null,
-            ],
+            'major' => $major,
         ]);
     }
 
-    public function update(UpdateMajorRequest $request, Major $major)
+    public function update(UpdateMajorRequest $request, string $slug)
     {
+        $major = Major::where('slug', $slug)->first();
+
+        if (!$major) {
+            return redirect()->back()->with('error', 'Major not found.');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('icon')) {
-            if ($major->icon) {
+            if ($major->icon && Storage::disk('public')->exists($major->icon)) {
                 Storage::disk('public')->delete($major->icon);
             }
+
             $data['icon'] = $request->file('icon')->store('major/icons', 'public');
+        } else {
+            unset($data['icon']);
         }
 
         if ($request->hasFile('preview_image')) {
-            if ($major->preview_image) {
+            if ($major->preview_image && Storage::disk('public')->exists($major->preview_image)) {
                 Storage::disk('public')->delete($major->preview_image);
             }
+
             $data['preview_image'] = $request->file('preview_image')->store('major/previews', 'public');
+        } else {
+            unset($data['preview_image']);
         }
 
         $major->update($data);
@@ -94,20 +96,26 @@ class MajorController extends Controller
             ->with('success', 'Major updated successfully.');
     }
 
-    public function destroy(Major $major)
+    public function destroy(string $slug)
     {
-        if ($major->icon) {
+        $major = Major::where('slug', $slug)->first();
+
+        if (!$major) {
+            return redirect()->back()->with('error', 'Major not found.');
+        }
+
+        if ($major->icon && Storage::disk('public')->exists($major->icon)) {
             Storage::disk('public')->delete($major->icon);
         }
 
-        if ($major->preview_image) {
+        if ($major->preview_image && Storage::disk('public')->exists($major->preview_image)) {
             Storage::disk('public')->delete($major->preview_image);
         }
 
         $major->delete();
 
         return redirect()
-            ->route('majors.index')
+            ->route('admin.majors.index')
             ->with('success', 'Major deleted successfully.');
     }
 }

@@ -23,6 +23,7 @@ interface Article {
     slug: string;
     content: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     is_published: boolean;
     created_at: string;
     updated_at: string;
@@ -57,8 +58,6 @@ export default function ArticlesShow({ article }: Props) {
             hour: '2-digit',
             minute: '2-digit',
         });
-
-    const thumbnailUrl = article.thumbnail ? `/storage/${article.thumbnail}` : null;
 
     return (
         <AppLayout>
@@ -140,10 +139,10 @@ export default function ArticlesShow({ article }: Props) {
                 </motion.div>
 
                 {/* Thumbnail */}
-                {thumbnailUrl && (
+                {article.thumbnail && (
                     <motion.div custom={1} variants={sectionVariants} initial="hidden" animate="visible">
                         <div className="w-full rounded-2xl overflow-hidden border border-gray-100 shadow-sm aspect-video">
-                            <img src={thumbnailUrl} alt={article.title} className="w-full h-full object-cover" />
+                            <img src={article.thumbnail_url} alt={article.title} className="w-full h-full object-cover" />
                         </div>
                     </motion.div>
                 )}
@@ -160,7 +159,7 @@ export default function ArticlesShow({ article }: Props) {
                             </div>
                         </CardHeader>
                         <CardContent className="px-6 py-6">
-                            {!thumbnailUrl && (
+                            {!article.thumbnail && (
                                 <div className="w-full rounded-xl border-2 border-dashed border-gray-100 aspect-video flex flex-col items-center justify-center gap-2 mb-6 text-gray-300">
                                     <ImageOff className="h-10 w-10" />
                                     <span className="text-sm">No thumbnail</span>

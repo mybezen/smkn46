@@ -35,6 +35,7 @@ interface Article {
     slug: string;
     content: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     is_published: boolean;
     category_id: number;
     author: Author;
@@ -81,7 +82,7 @@ export default function ArticlesEdit({ article, categories }: Props) {
         article.title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '')
     );
     const [imagePreview, setImagePreview] = useState<string | null>(
-        article.thumbnail ? `/storage/${article.thumbnail}` : null
+        article.thumbnail_url
     );
     const [imageChanged, setImageChanged] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);

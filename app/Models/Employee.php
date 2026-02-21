@@ -13,4 +13,17 @@ class Employee extends Model
         'category',
         'order',
     ];
+
+    protected $appends = [
+        'image_url',
+    ];
+
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        return asset('storage/' . $this->image);
+    }
 }

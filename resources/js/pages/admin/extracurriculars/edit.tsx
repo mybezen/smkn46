@@ -23,6 +23,7 @@ interface Extracurricular {
     description: string;
     category: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
 }
 
 interface Props {
@@ -57,7 +58,7 @@ export default function Edit({ extracurricular }: Props) {
         thumbnail: null,
     });
     const [errors, setErrors] = useState<Errors>({});
-    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(extracurricular.thumbnail);
+    const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(extracurricular.thumbnail_url);
     const [submitting, setSubmitting] = useState(false);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

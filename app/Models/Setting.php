@@ -18,6 +18,19 @@ class Setting extends Model
         'twitter_link',
         'youtube_link',
     ];
+    
+    protected $appends = [
+        'logo_url',
+    ];
+
+    public function getLogoUrlAttribute()
+    {
+        if (!$this->logo) {
+            return null;
+        }
+
+        return asset('storage/' . $this->logo);
+    }
 
     /**
      * Singleton pattern. first() if exists, create() if not exists.

@@ -8,13 +8,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Building2, Loader2, ImagePlus, X, AlignLeft, Upload } from 'lucide-react';
+import {
+    ArrowLeft,
+    Building2,
+    Loader2,
+    ImagePlus,
+    X,
+    AlignLeft,
+    Upload,
+} from 'lucide-react';
 
 interface Facility {
     id: number;
     name: string;
     slug: string;
-    image: string;
+    image: string | null;
+    image_url: string | null;
     description: string | null;
     created_at: string;
 }
@@ -40,7 +49,9 @@ const cardVariants: Variants = {
 };
 
 function slugify(text: string): string {
-    return text.toLowerCase().trim()
+    return text
+        .toLowerCase()
+        .trim()
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-+|-+$/g, '');
@@ -92,54 +103,92 @@ export default function FacilitiesEdit() {
     };
 
     // Show new preview if selected, otherwise show existing storage image
-    const displayImage = imagePreview ?? `/storage/${facility.image}`;
+    const displayImage = imagePreview ?? facility.image_url;
 
     return (
         <AppLayout>
             <Head title="Edit Facility" />
-            <motion.div className="space-y-6 p-6" variants={fadeIn} initial="hidden" animate="visible">
+            <motion.div
+                className="space-y-6 p-6"
+                variants={fadeIn}
+                initial="hidden"
+                animate="visible"
+            >
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Link href="/admin/facilities">
-                        <Button variant="ghost" size="sm" className="gap-1.5 text-gray-500 hover:text-gray-700 -ml-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="-ml-2 gap-1.5 text-gray-500 hover:text-gray-700"
+                        >
                             <ArrowLeft className="h-4 w-4" />
                             Back
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Edit Facility</h1>
-                        <p className="mt-0.5 text-sm text-gray-500">Update facility information</p>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            Edit Facility
+                        </h1>
+                        <p className="mt-0.5 text-sm text-gray-500">
+                            Update facility information
+                        </p>
                     </div>
                 </div>
 
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Left Column */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="space-y-6 lg:col-span-2">
                             {/* Facility Info */}
-                            <motion.div custom={0} variants={cardVariants} initial="hidden" animate="visible">
+                            <motion.div
+                                custom={0}
+                                variants={cardVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
                                 <Card className="rounded-2xl border border-gray-100 shadow-sm">
                                     <CardHeader className="border-b border-gray-100 px-6 py-4">
-                                        <CardTitle className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-800">
                                             <Building2 className="h-4 w-4 text-blue-500" />
                                             Facility Info
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="px-6 py-6 space-y-5">
+                                    <CardContent className="space-y-5 px-6 py-6">
                                         {/* Name */}
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                                                Name <span className="text-red-500">*</span>
+                                            <Label
+                                                htmlFor="name"
+                                                className="text-sm font-medium text-gray-700"
+                                            >
+                                                Name{' '}
+                                                <span className="text-red-500">
+                                                    *
+                                                </span>
                                             </Label>
                                             <Input
                                                 id="name"
                                                 value={name}
-                                                onChange={(e) => handleNameChange(e.target.value)}
+                                                onChange={(e) =>
+                                                    handleNameChange(
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 placeholder="e.g. Science Laboratory, Library"
                                                 className={`h-10 border-gray-200 focus:border-blue-400 focus:ring-blue-400 ${errors.name ? 'border-red-400' : ''}`}
                                             />
                                             {errors.name && (
-                                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500">
+                                                <motion.p
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: -4,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    className="text-xs text-red-500"
+                                                >
                                                     {errors.name}
                                                 </motion.p>
                                             )}
@@ -147,10 +196,16 @@ export default function FacilitiesEdit() {
 
                                         {/* Slug Preview */}
                                         <div className="space-y-1.5">
-                                            <Label className="text-sm font-medium text-gray-700">Slug Preview</Label>
-                                            <div className="flex items-center h-10 px-3 rounded-lg border border-gray-200 bg-gray-50 gap-2">
-                                                <span className="text-gray-400 text-xs font-mono">/facilities/</span>
-                                                <code className="text-sm font-mono text-blue-600 truncate">{slugPreview}</code>
+                                            <Label className="text-sm font-medium text-gray-700">
+                                                Slug Preview
+                                            </Label>
+                                            <div className="flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3">
+                                                <span className="font-mono text-xs text-gray-400">
+                                                    /facilities/
+                                                </span>
+                                                <code className="truncate font-mono text-sm text-blue-600">
+                                                    {slugPreview}
+                                                </code>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -158,29 +213,51 @@ export default function FacilitiesEdit() {
                             </motion.div>
 
                             {/* Description */}
-                            <motion.div custom={1} variants={cardVariants} initial="hidden" animate="visible">
+                            <motion.div
+                                custom={1}
+                                variants={cardVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
                                 <Card className="rounded-2xl border border-gray-100 shadow-sm">
                                     <CardHeader className="border-b border-gray-100 px-6 py-4">
-                                        <CardTitle className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-800">
                                             <AlignLeft className="h-4 w-4 text-blue-500" />
                                             Description
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="px-6 py-6">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="description" className="text-sm font-medium text-gray-700">
+                                            <Label
+                                                htmlFor="description"
+                                                className="text-sm font-medium text-gray-700"
+                                            >
                                                 Facility Description
                                             </Label>
                                             <Textarea
                                                 id="description"
                                                 value={description}
-                                                onChange={(e) => setDescription(e.target.value)}
+                                                onChange={(e) =>
+                                                    setDescription(
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 placeholder="Describe this facility, its purpose and capacity..."
                                                 rows={8}
-                                                className={`border-gray-200 focus:border-blue-400 focus:ring-blue-400 resize-y ${errors.description ? 'border-red-400' : ''}`}
+                                                className={`resize-y border-gray-200 focus:border-blue-400 focus:ring-blue-400 ${errors.description ? 'border-red-400' : ''}`}
                                             />
                                             {errors.description && (
-                                                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500">
+                                                <motion.p
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: -4,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    className="text-xs text-red-500"
+                                                >
                                                     {errors.description}
                                                 </motion.p>
                                             )}
@@ -193,25 +270,30 @@ export default function FacilitiesEdit() {
                         {/* Right Column */}
                         <div className="space-y-6">
                             {/* Image */}
-                            <motion.div custom={2} variants={cardVariants} initial="hidden" animate="visible">
+                            <motion.div
+                                custom={2}
+                                variants={cardVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
                                 <Card className="rounded-2xl border border-gray-100 shadow-sm">
                                     <CardHeader className="border-b border-gray-100 px-6 py-4">
-                                        <CardTitle className="text-base font-semibold text-gray-800 flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2 text-base font-semibold text-gray-800">
                                             <ImagePlus className="h-4 w-4 text-blue-500" />
                                             Facility Image
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="px-6 py-6 space-y-3">
+                                    <CardContent className="space-y-3 px-6 py-6">
                                         {/* Always show current or new image */}
                                         <div className="relative">
                                             <img
                                                 src={displayImage}
                                                 alt="Facility"
-                                                className="w-full rounded-xl object-cover aspect-video"
+                                                className="aspect-video w-full rounded-xl object-cover"
                                             />
                                             {imageFile && (
                                                 <>
-                                                    <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-lg font-medium">
+                                                    <div className="absolute top-2 left-2 rounded-lg bg-blue-600 px-2 py-1 text-xs font-medium text-white">
                                                         New image
                                                     </div>
                                                     <Button
@@ -219,7 +301,7 @@ export default function FacilitiesEdit() {
                                                         variant="destructive"
                                                         size="sm"
                                                         onClick={removeNewImage}
-                                                        className="absolute top-2 right-2 h-7 w-7 p-0 rounded-full bg-red-600 hover:bg-red-700 shadow"
+                                                        className="absolute top-2 right-2 h-7 w-7 rounded-full bg-red-600 p-0 shadow hover:bg-red-700"
                                                     >
                                                         <X className="h-3.5 w-3.5" />
                                                     </Button>
@@ -229,11 +311,15 @@ export default function FacilitiesEdit() {
 
                                         <button
                                             type="button"
-                                            onClick={() => fileInputRef.current?.click()}
-                                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 hover:border-blue-300 hover:bg-blue-50/40 text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                                            onClick={() =>
+                                                fileInputRef.current?.click()
+                                            }
+                                            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50/40 hover:text-blue-600"
                                         >
                                             <Upload className="h-4 w-4" />
-                                            {imageFile ? 'Change image' : 'Replace image'}
+                                            {imageFile
+                                                ? 'Change image'
+                                                : 'Replace image'}
                                         </button>
 
                                         <input
@@ -244,27 +330,46 @@ export default function FacilitiesEdit() {
                                             className="hidden"
                                         />
                                         {errors.image && (
-                                            <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-500">
+                                            <motion.p
+                                                initial={{ opacity: 0, y: -4 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="text-xs text-red-500"
+                                            >
                                                 {errors.image}
                                             </motion.p>
                                         )}
-                                        <p className="text-xs text-gray-400 text-center">Leave unchanged to keep current image</p>
+                                        <p className="text-center text-xs text-gray-400">
+                                            Leave unchanged to keep current
+                                            image
+                                        </p>
                                     </CardContent>
                                 </Card>
                             </motion.div>
 
                             {/* Action Buttons */}
-                            <motion.div custom={3} variants={cardVariants} initial="hidden" animate="visible" className="flex flex-col gap-2">
+                            <motion.div
+                                custom={3}
+                                variants={cardVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="flex flex-col gap-2"
+                            >
                                 <Button
                                     type="submit"
                                     disabled={submitting}
-                                    className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm h-11"
+                                    className="h-11 w-full gap-2 bg-blue-600 text-white shadow-sm hover:bg-blue-700"
                                 >
-                                    {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                                    {submitting && (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    )}
                                     {submitting ? 'Saving...' : 'Save Changes'}
                                 </Button>
                                 <Link href="/admin/facilities">
-                                    <Button type="button" variant="outline" className="w-full border-gray-200 text-gray-600 hover:bg-gray-50">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full border-gray-200 text-gray-600 hover:bg-gray-50"
+                                    >
                                         Cancel
                                     </Button>
                                 </Link>

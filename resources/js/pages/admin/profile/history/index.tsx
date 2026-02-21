@@ -17,6 +17,7 @@ interface HistoryData {
     title: string | null;
     content: string | null;
     main_image: string | null;
+    main_image_url: string | null;
 }
 
 interface PageProps {
@@ -57,7 +58,7 @@ export default function HistoryIndex() {
     const [content, setContent] = useState<string>(history?.content ?? '');
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(
-        history?.main_image ? `/storage/${history.main_image}` : null,
+        history?.main_image ? history.main_image_url : null,
     );
     const [processing, setProcessing] = useState<boolean>(false);
 

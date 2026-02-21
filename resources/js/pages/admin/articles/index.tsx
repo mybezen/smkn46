@@ -57,6 +57,7 @@ interface Article {
     title: string;
     slug: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     is_published: boolean;
     created_at: string;
     author: Author;
@@ -150,9 +151,6 @@ export default function ArticlesIndex({ articles, categories, filters }: Props) 
 
     const formatDate = (dateStr: string) =>
         new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-
-    const getThumbnailUrl = (thumbnail: string | null) =>
-        thumbnail ? `/storage/${thumbnail}` : null;
 
     return (
         <AppLayout>
@@ -273,9 +271,9 @@ export default function ArticlesIndex({ articles, categories, filters }: Props) 
                                                 >
                                                     <td className="px-6 py-4">
                                                         <div className="h-10 w-14 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                            {getThumbnailUrl(article.thumbnail) ? (
+                                                            {article.thumbnail ? (
                                                                 <img
-                                                                    src={getThumbnailUrl(article.thumbnail)!}
+                                                                    src={article.thumbnail_url}
                                                                     alt={article.title}
                                                                     className="h-full w-full object-cover"
                                                                 />
@@ -361,8 +359,8 @@ export default function ArticlesIndex({ articles, categories, filters }: Props) 
                                             className="flex gap-4 px-4 py-4 hover:bg-blue-50/30 transition-colors"
                                         >
                                             <div className="h-16 w-20 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                                {getThumbnailUrl(article.thumbnail) ? (
-                                                    <img src={getThumbnailUrl(article.thumbnail)!} alt={article.title} className="h-full w-full object-cover" />
+                                                {article.thumbnail ? (
+                                                    <img src={article.thumbnail_url} alt={article.title} className="h-full w-full object-cover" />
                                                 ) : (
                                                     <ImageOff className="h-5 w-5 text-gray-300" />
                                                 )}
