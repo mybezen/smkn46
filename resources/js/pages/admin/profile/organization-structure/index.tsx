@@ -17,9 +17,10 @@ import {
     CheckCircle2,
     Loader2,
     UserCircle2,
+    Pencil,
+    LayoutTemplate,
+    User,
 } from 'lucide-react';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Position {
     title: string | null;
@@ -52,7 +53,7 @@ interface PositionState {
     imagePreview: string | null;
 }
 
-// ─── Static layout definition ─────────────────────────────────────────────────
+const DISPLAY_ONLY_ORDERS = new Set([17, 18]);
 
 const ORG_ROWS: { jabatan: string; order: number }[][] = [
     [{ jabatan: 'Kepala Sekolah', order: 1 }],
@@ -85,8 +86,6 @@ const ORG_ROWS: { jabatan: string; order: number }[][] = [
 
 const TOTAL_POSITIONS = 18;
 
-// ─── Animation variants ────────────────────────────────────────────────────────
-
 const containerVariants: Variants = {
     hidden: { opacity: 0, y: 16 },
     visible: {
@@ -105,15 +104,11 @@ const cardVariants: Variants = {
     }),
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function buildInitialPositions(
     record: OrgStructureRecord | null,
 ): PositionState[] {
     const existing = record?.data?.positions ?? [];
 
-    // Map dari order (number) ke data posisi
-    // BE mengirim order sebagai string, jadi konversi ke number
     const byOrder = new Map<number, Position>();
     existing.forEach((p) => byOrder.set(Number(p.order), p));
 
@@ -126,13 +121,14 @@ function buildInitialPositions(
             order,
             image: p?.image ?? null,
             newImageFile: null,
-            // Jika ada image dari BE, gunakan /storage/ prefix
             imagePreview: p?.image ? `/storage/${p.image}` : null,
         };
     });
 }
 
-// ─── Position Card ─────────────────────────────────────────────────────────────
+function EmptyAvatar() {
+    return <User className="h-full w-full text-gray-200" />;
+}
 
 interface PositionCardProps {
     pos: PositionState;
@@ -144,6 +140,7 @@ interface PositionCardProps {
     fileInputRef: (el: HTMLInputElement | null) => void;
     onUploadClick: () => void;
     compact?: boolean;
+    displayOnly?: boolean;
 }
 
 function PositionCard({
@@ -156,6 +153,7 @@ function PositionCard({
     fileInputRef,
     onUploadClick,
     compact = false,
+    displayOnly = false,
 }: PositionCardProps) {
     return (
         <motion.div
@@ -165,20 +163,26 @@ function PositionCard({
             animate="visible"
             className="flex flex-col"
         >
-            <Card className="h-full rounded-2xl border-gray-200 py-0 shadow-sm transition-shadow duration-200 hover:shadow-md">
+            <Card
+                className={`h-full rounded-2xl border-gray-200 py-0 shadow-sm transition-shadow duration-200 ${
+                    displayOnly
+                        ? 'cursor-default bg-gray-50/60 opacity-80'
+                        : 'hover:shadow-md'
+                }`}
+            >
                 <CardContent
                     className={`space-y-2 ${compact ? 'p-2.5' : 'p-3'}`}
                 >
-                    {/* Jabatan badge */}
                     <div className="text-center">
                         <span className="inline-block rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] leading-tight font-semibold text-blue-700">
                             {jabatan}
                         </span>
                     </div>
 
-                    {/* Photo */}
                     <div>
-                        {pos.imagePreview ? (
+                        {displayOnly ? (
+                            <EmptyAvatar />
+                        ) : pos.imagePreview ? (
                             <motion.div
                                 whileHover={{ scale: 1.02 }}
                                 className="relative mb-1.5 aspect-square overflow-hidden rounded-xl border border-gray-200 bg-gray-50"
@@ -191,7 +195,7 @@ function PositionCard({
                                 {pos.newImageFile && (
                                     <div className="absolute top-1 right-1">
                                         <span className="rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                                            Baru
+                                            New
                                         </span>
                                     </div>
                                 )}
@@ -200,50 +204,69 @@ function PositionCard({
                             <div className="mb-1.5 flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50">
                                 <ImageIcon className="h-5 w-5 text-gray-300" />
                                 <span className="text-[10px] text-gray-400">
-                                    Belum ada foto
+                                    No photo yet
                                 </span>
                             </div>
                         )}
 
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpg,image/jpeg,image/png,image/webp"
-                            onChange={(e) => onImageChange(index, e)}
-                            className="hidden"
-                        />
+                        {!displayOnly && (
+                            <>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/jpg,image/jpeg,image/png,image/webp"
+                                    onChange={(e) => onImageChange(index, e)}
+                                    className="hidden"
+                                />
 
-                        <motion.div whileTap={{ scale: 0.97 }}>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={onUploadClick}
-                                className="h-7 w-full rounded-xl border-gray-200 px-2 text-[10px] text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
-                            >
-                                <Upload className="mr-1 h-3 w-3" />
-                                {pos.imagePreview
-                                    ? 'Ganti Foto'
-                                    : 'Upload Foto'}
-                            </Button>
-                        </motion.div>
+                                <motion.div whileTap={{ scale: 0.97 }}>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={onUploadClick}
+                                        className="h-7 w-full rounded-xl border-gray-200 px-2 text-[10px] text-gray-600 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                                    >
+                                        <Upload className="mr-1 h-3 w-3" />
+                                        {pos.imagePreview
+                                            ? 'Change Photo'
+                                            : 'Upload Photo'}
+                                    </Button>
+                                </motion.div>
+                            </>
+                        )}
+
+                        {displayOnly && (
+                            <div className="flex h-7 w-full items-center justify-center rounded-xl border border-dashed border-gray-200">
+                                <span className="text-[9px] text-gray-400 italic">
+                                    Display only
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     <Separator />
 
-                    {/* Name input */}
                     <div className="space-y-1">
                         <Label className="text-[10px] font-medium text-gray-500">
-                            Nama
+                            Name
                         </Label>
-                        <Input
-                            placeholder="Nama lengkap"
-                            value={pos.name ?? ''}
-                            onChange={(e) =>
-                                onNameChange(index, e.target.value)
-                            }
-                            className="h-8 rounded-xl border-gray-200 text-xs placeholder:text-xs focus:border-blue-400"
-                        />
+                        {displayOnly ? (
+                            <div className="flex h-8 items-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-2">
+                                <span className="text-[10px] text-gray-400 italic">
+                                    —
+                                </span>
+                            </div>
+                        ) : (
+                            <Input
+                                placeholder="Full name"
+                                value={pos.name ?? ''}
+                                onChange={(e) =>
+                                    onNameChange(index, e.target.value)
+                                }
+                                className="h-8 rounded-xl border-gray-200 text-xs placeholder:text-xs focus:border-blue-400"
+                            />
+                        )}
                     </div>
                 </CardContent>
             </Card>
@@ -251,17 +274,13 @@ function PositionCard({
     );
 }
 
-// ─── Connector line component ──────────────────────────────────────────────────
-
 function ConnectorLine() {
     return (
         <div className="flex justify-center py-1">
-            <div className="h-6 w-px bg-blue-200" />
+            <div className="h-8 w-px bg-blue-200" />
         </div>
     );
 }
-
-// ─── Main component ────────────────────────────────────────────────────────────
 
 export default function OrganizationStructureIndex() {
     const { organizationStructure, flash } = usePage<PageProps>().props;
@@ -305,7 +324,6 @@ export default function OrganizationStructureIndex() {
 
         const formData = new FormData();
         formData.append('_method', 'PUT');
-        // Selalu kirim title (wajib di BE)
         formData.append('title', sectionTitle);
 
         positions.forEach((pos, index) => {
@@ -341,11 +359,11 @@ export default function OrganizationStructureIndex() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-                                Struktur Organisasi
+                                Organization Structure
                             </h1>
                             <p className="mt-0.5 text-sm text-gray-500">
-                                Kelola posisi dan anggota struktur organisasi
-                                sekolah
+                                Manage positions and members of the school's
+                                organization structure
                             </p>
                         </div>
                     </div>
@@ -365,25 +383,25 @@ export default function OrganizationStructureIndex() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-6">
-                        {/* Section Title */}
+                        {/* ── Section Title ── */}
                         <Card className="rounded-2xl border-gray-200 shadow-sm">
-                            <CardContent className="p-5">
-                                <div className="space-y-1.5">
+                            <CardContent className="px-5 py-3">
+                                <div className="flex flex-col gap-3">
                                     <Label
                                         htmlFor="section-title"
                                         className="text-sm font-semibold text-gray-700"
                                     >
-                                        Judul Seksi
+                                        Section Title
                                     </Label>
                                     <Input
                                         id="section-title"
                                         name="title"
-                                        placeholder="contoh: Struktur Organisasi Sekolah"
+                                        placeholder="ex: Struktur Organisasi Sekolah"
                                         value={sectionTitle}
                                         onChange={(e) =>
                                             setSectionTitle(e.target.value)
                                         }
-                                        className="max-w-xl rounded-xl border-gray-200 focus:border-blue-400"
+                                        className="max-w-xl rounded-xl border-gray-200 placeholder:text-gray-400 focus:border-blue-400"
                                     />
                                 </div>
                             </CardContent>
@@ -392,7 +410,7 @@ export default function OrganizationStructureIndex() {
                         {/* ── CHART ── */}
                         <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                             <p className="mb-6 text-center text-xs font-semibold tracking-widest text-gray-400 uppercase">
-                                Bagan Struktur Organisasi
+                                Organization Structure Chart
                             </p>
 
                             <div className="flex min-w-[640px] flex-col items-center gap-0">
@@ -404,6 +422,10 @@ export default function OrganizationStructureIndex() {
                                             {row.map(({ jabatan, order }) => {
                                                 const idx = order - 1;
                                                 const ai = animCounter++;
+                                                const isDisplayOnly =
+                                                    DISPLAY_ONLY_ORDERS.has(
+                                                        order,
+                                                    );
                                                 return (
                                                     <div
                                                         key={order}
@@ -431,6 +453,9 @@ export default function OrganizationStructureIndex() {
                                                                 fileInputRefs.current[
                                                                     idx
                                                                 ]?.click()
+                                                            }
+                                                            displayOnly={
+                                                                isDisplayOnly
                                                             }
                                                         />
                                                     </div>
@@ -463,6 +488,10 @@ export default function OrganizationStructureIndex() {
                                                         const idx = order - 1;
                                                         const ai =
                                                             animCounter++;
+                                                        const isDisplayOnly =
+                                                            DISPLAY_ONLY_ORDERS.has(
+                                                                order,
+                                                            );
                                                         return (
                                                             <div
                                                                 key={order}
@@ -504,6 +533,9 @@ export default function OrganizationStructureIndex() {
                                                                                 idx
                                                                             ]?.click()
                                                                         }
+                                                                        displayOnly={
+                                                                            isDisplayOnly
+                                                                        }
                                                                     />
                                                                 </div>
                                                             </div>
@@ -525,6 +557,10 @@ export default function OrganizationStructureIndex() {
                                             {row.map(({ jabatan, order }) => {
                                                 const idx = order - 1;
                                                 const ai = animCounter++;
+                                                const isDisplayOnly =
+                                                    DISPLAY_ONLY_ORDERS.has(
+                                                        order,
+                                                    );
                                                 return (
                                                     <div
                                                         key={order}
@@ -554,6 +590,9 @@ export default function OrganizationStructureIndex() {
                                                                 ]?.click()
                                                             }
                                                             compact
+                                                            displayOnly={
+                                                                isDisplayOnly
+                                                            }
                                                         />
                                                     </div>
                                                 );
@@ -572,6 +611,10 @@ export default function OrganizationStructureIndex() {
                                             {row.map(({ jabatan, order }) => {
                                                 const idx = order - 1;
                                                 const ai = animCounter++;
+                                                const isDisplayOnly =
+                                                    DISPLAY_ONLY_ORDERS.has(
+                                                        order,
+                                                    );
                                                 return (
                                                     <div
                                                         key={order}
@@ -601,6 +644,9 @@ export default function OrganizationStructureIndex() {
                                                                 ]?.click()
                                                             }
                                                             compact
+                                                            displayOnly={
+                                                                isDisplayOnly
+                                                            }
                                                         />
                                                     </div>
                                                 );
@@ -619,6 +665,10 @@ export default function OrganizationStructureIndex() {
                                             {row.map(({ jabatan, order }) => {
                                                 const idx = order - 1;
                                                 const ai = animCounter++;
+                                                const isDisplayOnly =
+                                                    DISPLAY_ONLY_ORDERS.has(
+                                                        order,
+                                                    );
                                                 return (
                                                     <div
                                                         key={order}
@@ -648,6 +698,9 @@ export default function OrganizationStructureIndex() {
                                                                 ]?.click()
                                                             }
                                                             compact
+                                                            displayOnly={
+                                                                isDisplayOnly
+                                                            }
                                                         />
                                                     </div>
                                                 );
@@ -686,10 +739,10 @@ export default function OrganizationStructureIndex() {
                                     {processing ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Menyimpan...
+                                            Saving...
                                         </>
                                     ) : (
-                                        'Simpan Perubahan'
+                                        'Save Changes'
                                     )}
                                 </Button>
                             </motion.div>
