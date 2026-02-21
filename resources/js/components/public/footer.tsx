@@ -142,7 +142,7 @@ export default function Footer({ setting }: FooterProps) {
                         © {year} {setting?.school_name ?? 'Sekolah'}. Hak cipta dilindungi.
                     </p>
                     <p className="text-xs text-gray-400">
-                        Dibangun dengan ❤️ untuk pendidikan Indonesia
+                        @peintagons.id
                     </p>
                 </div>
             </div>
