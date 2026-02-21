@@ -40,10 +40,10 @@ interface Setting {
     phone: string | null;
     email: string | null;
     maps: string | null;
-    facebook: string | null;
-    instagram: string | null;
-    twitter: string | null;
-    youtube: string | null;
+    facebook_link: string | null;
+    instagram_link: string | null;
+    twitter_link: string | null;
+    youtube_link: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -58,10 +58,10 @@ interface FormData {
     maps: string;
     phone: string;
     email: string;
-    facebook: string;
-    instagram: string;
-    twitter: string;
-    youtube: string;
+    facebook_link: string;
+    instagram_link: string;
+    twitter_link: string;
+    youtube_link: string;
     logo: File | null;
 }
 
@@ -93,10 +93,10 @@ export default function SettingsIndex({ setting }: Props) {
         maps: setting?.maps ?? '',
         phone: setting?.phone ?? '',
         email: setting?.email ?? '',
-        facebook: setting?.facebook ?? '',
-        instagram: setting?.instagram ?? '',
-        twitter: setting?.twitter ?? '',
-        youtube: setting?.youtube ?? '',
+        facebook_link: setting?.facebook_link ?? '',
+        instagram_link: setting?.instagram_link ?? '',
+        twitter_link: setting?.twitter_link ?? '',
+        youtube_link: setting?.youtube_link ?? '',
         logo: null,
     });
 
@@ -120,10 +120,10 @@ export default function SettingsIndex({ setting }: Props) {
         formData.append('maps', data.maps);
         formData.append('phone', data.phone);
         formData.append('email', data.email);
-        formData.append('facebook', data.facebook);
-        formData.append('instagram', data.instagram);
-        formData.append('twitter', data.twitter);
-        formData.append('youtube', data.youtube);
+        formData.append('facebook_link', data.facebook_link);
+        formData.append('instagram_link', data.instagram_link);
+        formData.append('twitter_link', data.twitter_link);
+        formData.append('youtube_link', data.youtube_link);
         if (data.logo) {
             formData.append('logo', data.logo);
         }
@@ -247,70 +247,70 @@ export default function SettingsIndex({ setting }: Props) {
                                     </CardHeader>
                                     <CardContent className="space-y-5">
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="facebook" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                                            <Label htmlFor="facebook_link" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                                                 <Facebook className="w-3.5 h-3.5 text-blue-500" />
                                                 Facebook
                                             </Label>
                                             <Input
-                                                id="facebook"
-                                                value={data.facebook}
-                                                onChange={(e) => setData('facebook', e.target.value)}
+                                                id="facebook_link"
+                                                value={data.facebook_link}
+                                                onChange={(e) => setData('facebook_link', e.target.value)}
                                                 placeholder="https://facebook.com/..."
                                                 className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400"
                                             />
-                                            {errors.facebook && (
-                                                <p className="text-xs text-red-500 mt-1">{errors.facebook}</p>
+                                            {errors.facebook_link && (
+                                                <p className="text-xs text-red-500 mt-1">{errors.facebook_link}</p>
                                             )}
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="instagram" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                                            <Label htmlFor="instagram_link" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                                                 <Instagram className="w-3.5 h-3.5 text-pink-500" />
                                                 Instagram
                                             </Label>
                                             <Input
-                                                id="instagram"
-                                                value={data.instagram}
-                                                onChange={(e) => setData('instagram', e.target.value)}
+                                                id="instagram_link"
+                                                value={data.instagram_link}
+                                                onChange={(e) => setData('instagram_link', e.target.value)}
                                                 placeholder="https://instagram.com/..."
                                                 className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400"
                                             />
-                                            {errors.instagram && (
-                                                <p className="text-xs text-red-500 mt-1">{errors.instagram}</p>
+                                            {errors.instagram_link && (
+                                                <p className="text-xs text-red-500 mt-1">{errors.instagram_link}</p>
                                             )}
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="twitter" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                                            <Label htmlFor="twitter_link" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                                                 <Twitter className="w-3.5 h-3.5 text-sky-500" />
                                                 Twitter / X
                                             </Label>
                                             <Input
-                                                id="twitter"
-                                                value={data.twitter}
-                                                onChange={(e) => setData('twitter', e.target.value)}
+                                                id="twitter_link"
+                                                value={data.twitter_link}
+                                                onChange={(e) => setData('twitter_link', e.target.value)}
                                                 placeholder="https://twitter.com/..."
                                                 className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400"
                                             />
-                                            {errors.twitter && (
-                                                <p className="text-xs text-red-500 mt-1">{errors.twitter}</p>
+                                            {errors.twitter_link && (
+                                                <p className="text-xs text-red-500 mt-1">{errors.twitter_link}</p>
                                             )}
                                         </div>
 
                                         <div className="space-y-1.5">
-                                            <Label htmlFor="youtube" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                                            <Label htmlFor="youtube_link" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                                                 <Youtube className="w-3.5 h-3.5 text-red-500" />
                                                 YouTube
                                             </Label>
                                             <Input
-                                                id="youtube"
-                                                value={data.youtube}
-                                                onChange={(e) => setData('youtube', e.target.value)}
+                                                id="youtube_link"
+                                                value={data.youtube_link}
+                                                onChange={(e) => setData('youtube_link', e.target.value)}
                                                 placeholder="https://youtube.com/..."
                                                 className="rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400"
                                             />
-                                            {errors.youtube && (
-                                                <p className="text-xs text-red-500 mt-1">{errors.youtube}</p>
+                                            {errors.youtube_link && (
+                                                <p className="text-xs text-red-500 mt-1">{errors.youtube_link}</p>
                                             )}
                                         </div>
                                     </CardContent>

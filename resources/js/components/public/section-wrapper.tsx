@@ -1,41 +1,36 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
-import { cn } from '@/lib/utils';
 
 interface SectionWrapperProps {
     children: React.ReactNode;
     className?: string;
     id?: string;
-    tight?: boolean;
+    delay?: number;
 }
 
 const sectionVariants: Variants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: {
+    hidden: { opacity: 0, y: 32 },
+    visible: (delay: number = 0) => ({
         opacity: 1,
         y: 0,
-        transition: { duration: 0.65, ease: easeOut },
-    },
+        transition: { duration: 0.65, ease: easeOut, delay },
+    }),
 };
 
-export default function SectionWrapper({ children, className, id, tight }: SectionWrapperProps) {
+export default function SectionWrapper({ children, className = '', id, delay = 0 }: SectionWrapperProps) {
     return (
         <motion.section
             id={id}
-            variants={sectionVariants}
+            custom={delay}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-80px' }}
-            className={cn(
-                'w-full',
-                tight ? 'py-12' : 'py-20',
-                className,
-            )}
+            variants={sectionVariants}
+            className={`w-full ${className}`}
         >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                {children}
-            </div>
+            {children}
         </motion.section>
     );
 }

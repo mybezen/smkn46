@@ -1,485 +1,682 @@
-import { useState, useEffect } from 'react';
-import { Link } from '@inertiajs/react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
-import { Head } from '@inertiajs/react';
-import {
-    ChevronLeft,
-    ChevronRight,
-    ArrowRight,
-    BookOpen,
-    CalendarDays,
-    GraduationCap,
-    Sparkles,
-} from 'lucide-react';
 import PublicLayout from '@/layouts/public-layout';
 import SectionWrapper from '@/components/public/section-wrapper';
-import type { Banner, Major, Article, Setting, SchoolProfile } from '@/types/models';
-
-// ─── Types ──────────────────────────────────────────────────────────────────
+import { extractIframeSrc } from '@/lib/utils';
+import {
+    ArrowRight,
+    BookOpen,
+    GraduationCap,
+    Award,
+    Users,
+    Calendar,
+    ExternalLink,
+    Cpu,
+    Wrench,
+    FlaskConical,
+    Landmark,
+    Shirt,
+    Car,
+    Network,
+    Utensils,
+    Building2,
+    Zap,
+    MapPin,
+    Phone,
+    Mail,
+    Send,
+} from 'lucide-react';
+import type { Banner, Major, Article, Setting, SchoolProfile } from '@/types/public';
 
 interface WelcomeProps {
     banners: Banner[];
-    headmaster: Pick<SchoolProfile, 'title' | 'content' | 'main_image'> | null;
     majors: Major[];
     articles: Article[];
     setting: Setting | null;
+    headmaster: SchoolProfile | null;
 }
 
-// ─── Variants ───────────────────────────────────────────────────────────────
-
-const fadeUp: Variants = {
-    hidden: { opacity: 0, y: 24 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } },
-};
-
-const staggerContainer: Variants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.12 } },
-};
-
 const cardVariant: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: easeOut } },
+    hidden: { opacity: 0, y: 24 },
+    visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.55, ease: easeOut, delay: i * 0.1 },
+    }),
 };
 
-// ─── Hero / Banner Carousel ──────────────────────────────────────────────────
+const stats = [
+    { icon: GraduationCap, value: '600+', label: 'Siswa Aktif' },
+    { icon: Users, value: '20+', label: 'Tenaga Pendidik' },
+    { icon: Award, value: '150+', label: 'Prestasi' },
+    { icon: BookOpen, value: '5', label: 'Program Keahlian' },
+];
+
+const MAJOR_ICONS: Record<string, React.ElementType> = {
+    default: BookOpen,
+    tkj: Network,
+    rpl: Cpu,
+    tki: Network,
+    teknik: Wrench,
+    kimia: FlaskConical,
+    akuntansi: Landmark,
+    busana: Shirt,
+    otomotif: Car,
+    kuliner: Utensils,
+    konstruksi: Building2,
+    listrik: Zap,
+};
+
+function getMajorIcon(name: string): React.ElementType {
+    const lower = name.toLowerCase();
+    for (const [key, Icon] of Object.entries(MAJOR_ICONS)) {
+        if (key !== 'default' && lower.includes(key)) return Icon;
+    }
+    return MAJOR_ICONS.default;
+}
 
 function HeroCarousel({ banners }: { banners: Banner[] }) {
     const [current, setCurrent] = useState(0);
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const total = banners.length;
 
     useEffect(() => {
-        if (banners.length <= 1) return;
-        const timer = setInterval(() => {
-            setCurrent((c) => (c + 1) % banners.length);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, [banners.length]);
+        if (total <= 1) return;
+        timerRef.current = setInterval(() => {
+            setCurrent((prev) => (prev + 1) % total);
+        }, 5500);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [total]);
 
-    const prev = () => setCurrent((c) => (c - 1 + banners.length) % banners.length);
-    const next = () => setCurrent((c) => (c + 1) % banners.length);
-
-    if (banners.length === 0) {
+    if (!total) {
         return (
-            <div className="relative w-full h-[520px] sm:h-[600px] bg-gradient-to-br from-blue-700 to-blue-500 flex items-center justify-center">
-                <div className="text-center text-white px-6">
-                    <motion.h1
-                        variants={fadeUp}
-                        initial="hidden"
-                        animate="visible"
-                        className="text-4xl sm:text-5xl font-bold leading-tight mb-4"
-                    >
-                        Selamat Datang
-                    </motion.h1>
-                    <motion.p
-                        variants={fadeUp}
-                        initial="hidden"
-                        animate="visible"
-                        transition={{ delay: 0.15 }}
-                        className="text-blue-100 text-lg"
-                    >
-                        Bersama kami, raih masa depan gemilang.
-                    </motion.p>
-                </div>
+            <div className="relative h-[62vh] min-h-[500px] md:min-h-screen bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500">
+                <HeroContent banner={null} />
             </div>
         );
     }
 
     return (
-        <div className="relative w-full h-[520px] sm:h-[600px] overflow-hidden bg-gray-900">
-            {banners.map((banner, i) => (
-                <div
-                    key={banner.id}
-                    className={`absolute inset-0 transition-opacity duration-700 ${
-                        i === current ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                    }`}
+        <div className="relative h-[62vh] min-h-[500px] md:min-h-screen overflow-hidden bg-gray-900">
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={current}
+                    initial={{ opacity: 0, x: 60 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -60 }}
+                    transition={{ duration: 0.7, ease: easeOut }}
+                    className="absolute inset-0"
                 >
                     <img
-                        src={banner.image}
-                        alt={banner.title}
-                        className="w-full h-full object-cover"
+                        src={banners[current].image_url}
+                        alt={banners[current].title}
+                        className="w-full h-full object-cover object-center"
                     />
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/70" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
+                </motion.div>
+            </AnimatePresence>
 
-                    {/* Content */}
-                    {i === current && (
-                        <div className="absolute inset-0 flex items-end z-20">
-                            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-14 w-full">
-                                <motion.div
-                                    initial={{ opacity: 0, y: 32 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.65, ease: easeOut }}
-                                    className="max-w-2xl"
-                                >
-                                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-3">
-                                        {banner.title}
-                                    </h1>
-                                    {banner.description && (
-                                        <p className="text-white/80 text-base sm:text-lg mb-6 leading-relaxed">
-                                            {banner.description}
-                                        </p>
-                                    )}
-                                    {banner.link && (
-                                        <a
-                                            href={banner.link}
-                                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors shadow-lg"
-                                        >
-                                            Selengkapnya <ArrowRight size={16} />
-                                        </a>
-                                    )}
-                                </motion.div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            ))}
-
-            {/* Controls */}
-            {banners.length > 1 && (
-                <>
-                    <button
-                        onClick={prev}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/35 transition-colors"
-                        aria-label="Sebelumnya"
+            <div className="relative z-20 h-full">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={current}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.5, ease: easeOut, delay: 0.15 }}
+                        className="h-full"
                     >
-                        <ChevronLeft size={22} />
-                    </button>
-                    <button
-                        onClick={next}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/35 transition-colors"
-                        aria-label="Berikutnya"
-                    >
-                        <ChevronRight size={22} />
-                    </button>
-
-                    {/* Dots */}
-                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex gap-2">
-                        {banners.map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setCurrent(i)}
-                                className={`rounded-full transition-all duration-300 ${
-                                    i === current
-                                        ? 'w-6 h-2 bg-white'
-                                        : 'w-2 h-2 bg-white/50 hover:bg-white/80'
-                                }`}
-                                aria-label={`Slide ${i + 1}`}
-                            />
-                        ))}
-                    </div>
-                </>
-            )}
-        </div>
-    );
-}
-
-// ─── Stats Strip ────────────────────────────────────────────────────────────
-
-function StatsStrip({ majors }: { majors: Major[] }) {
-    const stats = [
-        { icon: GraduationCap, label: 'Program Keahlian', value: `${majors.length}+` },
-        { icon: BookOpen, label: 'Tahun Berpengalaman', value: '20+' },
-        { icon: Sparkles, label: 'Prestasi Nasional', value: '50+' },
-    ];
-
-    return (
-        <div className="bg-blue-600 text-white py-8">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-0 sm:divide-x sm:divide-blue-500">
-                    {stats.map(({ icon: Icon, label, value }) => (
-                        <div key={label} className="flex flex-col items-center text-center px-6">
-                            <Icon size={28} className="mb-2 text-blue-200" />
-                            <span className="text-3xl font-bold mb-1">{value}</span>
-                            <span className="text-blue-200 text-sm">{label}</span>
-                        </div>
-                    ))}
-                </div>
+                        <HeroContent banner={banners[current]} />
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );
 }
 
-// ─── Section Heading ─────────────────────────────────────────────────────────
-
-function SectionHeading({ title, subtitle }: { title: string; subtitle?: string }) {
+function HeroContent({ banner }: { banner: Banner | null }) {
     return (
-        <div className="text-center mb-12">
-            <motion.h2
-                variants={fadeUp}
-                className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3"
-            >
-                {title}
-            </motion.h2>
-            {subtitle && (
-                <motion.p
-                    variants={fadeUp}
-                    className="text-gray-500 max-w-xl mx-auto text-base sm:text-lg leading-relaxed"
+        <div className="flex items-center h-full">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-20 md:pt-28">
+                <motion.span
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1, ease: easeOut }}
+                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-400/20 backdrop-blur-sm border border-blue-300/30 text-blue-200 text-xs font-semibold mb-5 tracking-widest uppercase"
                 >
-                    {subtitle}
-                </motion.p>
-            )}
-            <motion.div
-                variants={fadeUp}
-                className="mx-auto mt-4 h-1 w-12 rounded-full bg-blue-500"
-            />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
+                    Selamat Datang
+                </motion.span>
+
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.22, ease: easeOut }}
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white max-w-3xl leading-[1.1] mb-5"
+                >
+                    {banner?.title ?? 'Membangun Generasi Unggul'}
+                </motion.h1>
+
+                {banner?.description && (
+                    <motion.p
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.55, delay: 0.34, ease: easeOut }}
+                        className="text-sm sm:text-base md:text-lg text-gray-200/90 max-w-lg mb-8 leading-relaxed"
+                    >
+                        {banner.description}
+                    </motion.p>
+                )}
+
+                <motion.div
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.44, ease: easeOut }}
+                    className="flex flex-wrap gap-3"
+                >
+                    <Link
+                        href="/majors"
+                        className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-700/30 hover:-translate-y-0.5 transition-all duration-200 text-sm"
+                    >
+                        Program Keahlian
+                        <ArrowRight className="w-4 h-4" />
+                    </Link>
+                    <Link
+                        href="/profile"
+                        className="inline-flex items-center gap-2 px-5 py-3 bg-white/10 backdrop-blur-sm border border-white/25 text-white font-semibold rounded-xl hover:bg-white/20 hover:-translate-y-0.5 transition-all duration-200 text-sm"
+                    >
+                        Tentang Kami
+                    </Link>
+                </motion.div>
+            </div>
         </div>
     );
 }
 
-// ─── Majors Section ──────────────────────────────────────────────────────────
+function StatsSection() {
+    return (
+        <SectionWrapper className="bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 md:-mt-16 relative z-20">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                    {stats.map(({ icon: Icon, value, label }, i) => (
+                        <motion.div
+                            key={label}
+                            custom={i}
+                            variants={cardVariant}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            transition={{ duration: 0.22 }}
+                            className="bg-white rounded-2xl p-4 md:p-6 text-center shadow-[0_8px_32px_-8px_rgba(59,130,246,0.13),0_2px_8px_-2px_rgba(59,130,246,0.06)] border border-gray-100"
+                        >
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
+                                <Icon className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+                            </div>
+                            <div className="text-xl md:text-2xl font-black text-gray-800 mb-0.5">{value}</div>
+                            <div className="text-xs md:text-sm text-gray-500 font-medium">{label}</div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </SectionWrapper>
+    );
+}
+
+function PPDBSection() {
+    return (
+        <SectionWrapper className="py-10 md:py-14 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <motion.a
+                    href="https://ppdb.jakarta.go.id/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.55, ease: easeOut }}
+                    whileHover={{ scale: 1.012 }}
+                    className="group relative flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl overflow-hidden px-8 py-8 md:py-10 cursor-pointer bg-gradient-to-br from-blue-600 via-blue-600 to-blue-800"
+                >
+                    <div className="absolute -top-12 -right-12 w-56 h-56 rounded-full bg-blue-500/20 blur-2xl pointer-events-none" />
+                    <div className="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-blue-900/30 blur-2xl pointer-events-none" />
+                    <div className="absolute top-0 right-0 w-64 h-full bg-gradient-to-l from-blue-900/20 to-transparent pointer-events-none" />
+
+                    <div className="relative z-10 text-center md:text-left">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-200 uppercase tracking-widest mb-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse" />
+                            Pendaftaran Dibuka
+                        </span>
+                        <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white mb-1">
+                            Penerimaan Peserta Didik Baru
+                        </h3>
+                        <p className="text-blue-200 text-sm md:text-base max-w-md">
+                            Daftarkan diri sekarang melalui sistem PPDB Online Provinsi DKI Jakarta.
+                        </p>
+                    </div>
+
+                    <div className="relative z-10 shrink-0">
+                        <div className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-white text-blue-700 font-bold rounded-xl shadow-lg hover:bg-blue-50 transition-all duration-200 group-hover:-translate-y-0.5 text-sm">
+                            Daftar Sekarang
+                            <ExternalLink className="w-4 h-4" />
+                        </div>
+                    </div>
+                </motion.a>
+            </div>
+        </SectionWrapper>
+    );
+}
+
+function HeadmasterSection({ headmaster }: { headmaster: SchoolProfile | null }) {
+    if (!headmaster) return null;
+    return (
+        <SectionWrapper className="py-16 md:py-24 bg-gray-50/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                    <div className="order-2 lg:order-1">
+                        <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">
+                            Kata Sambutan
+                        </span>
+                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-800 mb-5 leading-snug">
+                            {headmaster.title}
+                        </h2>
+                        <div
+                            className="text-gray-600 leading-relaxed text-sm md:text-base prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{ __html: headmaster.content }}
+                        />
+                        <Link
+                            href="/profile"
+                            className="inline-flex items-center gap-2 mt-7 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors group"
+                        >
+                            Selengkapnya
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+
+                    <div className="order-1 lg:order-2 flex justify-center">
+                        <div className="relative">
+                            <div className="absolute -inset-3 bg-gradient-to-br from-blue-100 to-blue-50 rounded-3xl -z-10" />
+                            <div className="absolute -bottom-3 -right-3 w-24 h-24 bg-blue-200/40 rounded-2xl -z-10 blur-sm" />
+                            {headmaster.main_image_url ? (
+                                <img
+                                    src={headmaster.main_image_url}
+                                    alt={headmaster.title}
+                                    className="w-60 h-80 md:w-72 md:h-96 object-cover rounded-2xl shadow-[0_16px_48px_-8px_rgba(59,130,246,0.18),0_4px_16px_-4px_rgba(59,130,246,0.10)]"
+                                />
+                            ) : (
+                                <div className="w-60 h-80 md:w-72 md:h-96 bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl flex items-center justify-center">
+                                    <GraduationCap className="w-16 h-16 text-blue-300" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </SectionWrapper>
+    );
+}
 
 function MajorsSection({ majors }: { majors: Major[] }) {
     return (
-        <SectionWrapper className="bg-gray-50">
-            <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <SectionHeading
-                    title="Program Keahlian"
-                    subtitle="Temukan jurusan yang sesuai dengan minat dan bakatmu untuk masa depan yang cerah."
-                />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {majors.map((major) => (
-                        <motion.div key={major.id} variants={cardVariant}>
-                            <Link
-                                href={`/majors`}
-                                className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1"
+        <SectionWrapper className="py-16 md:py-24 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-10 md:mb-14">
+                    <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">
+                        Program Keahlian
+                    </span>
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-800">
+                        Pilihan Jurusan Unggulan
+                    </h2>
+                    <p className="mt-3 text-gray-500 max-w-lg mx-auto text-sm md:text-base">
+                        Temukan program keahlian yang sesuai dengan minat dan bakatmu.
+                    </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {majors.map((major, i) => {
+                        const Icon = getMajorIcon(major.name);
+                        return (
+                            <motion.div
+                                key={major.id}
+                                custom={i}
+                                variants={cardVariant}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                                whileHover={{ y: -4 }}
+                                transition={{ duration: 0.22 }}
+                                className="group"
                             >
-                                {major.preview_image ? (
-                                    <div className="aspect-video overflow-hidden">
-                                        <img
-                                            src={major.preview_image}
-                                            alt={major.name}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
+                                <Link
+                                    href={`/majors/${major.slug}`}
+                                    className="flex items-center gap-4 p-5 rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-[0_8px_32px_-8px_rgba(59,130,246,0.16),0_2px_8px_-4px_rgba(59,130,246,0.08)] transition-all duration-300 hover:border-blue-100"
+                                >
+                                    <div className="shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-blue-50 group-hover:bg-blue-600 flex items-center justify-center transition-colors duration-300">
+                                        <Icon className="w-6 h-6 text-blue-600 group-hover:text-white transition-colors duration-300" />
                                     </div>
-                                ) : (
-                                    <div className="aspect-video bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                                        {major.icon ? (
-                                            <img src={major.icon} alt="" className="h-14 w-14 object-contain opacity-60" />
-                                        ) : (
-                                            <GraduationCap size={48} className="text-blue-300" />
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="font-bold text-gray-800 text-base group-hover:text-blue-600 transition-colors leading-snug">
+                                            {major.name}
+                                        </h3>
+                                        {major.description && (
+                                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                                                {major.description}
+                                            </p>
                                         )}
                                     </div>
-                                )}
-                                <div className="p-5">
-                                    <h3 className="font-semibold text-gray-800 text-base mb-2 group-hover:text-blue-600 transition-colors">
-                                        {major.name}
-                                    </h3>
-                                    {major.description && (
-                                        <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
-                                            {major.description}
-                                        </p>
-                                    )}
-                                    <span className="mt-3 inline-flex items-center gap-1 text-blue-600 text-sm font-medium">
-                                        Pelajari lebih <ArrowRight size={14} />
-                                    </span>
-                                </div>
-                            </Link>
-                        </motion.div>
-                    ))}
+                                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-200 shrink-0" />
+                                </Link>
+                            </motion.div>
+                        );
+                    })}
                 </div>
 
                 {majors.length > 0 && (
-                    <motion.div variants={fadeUp} className="text-center mt-10">
+                    <div className="text-center mt-10">
                         <Link
                             href="/majors"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-blue-200 text-blue-600 font-medium hover:bg-blue-50 transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-blue-600 text-blue-600 font-bold hover:bg-blue-600 hover:text-white transition-all duration-200"
                         >
-                            Lihat Semua Jurusan <ArrowRight size={16} />
+                            Semua Program Keahlian
+                            <ArrowRight className="w-4 h-4" />
                         </Link>
-                    </motion.div>
-                )}
-            </motion.div>
-        </SectionWrapper>
-    );
-}
-
-// ─── Headmaster Section ──────────────────────────────────────────────────────
-
-function HeadmasterSection({ headmaster }: { headmaster: WelcomeProps['headmaster'] }) {
-    if (!headmaster) return null;
-
-    return (
-        <SectionWrapper>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                {/* Image */}
-                <motion.div variants={fadeUp} className="flex justify-center lg:justify-start">
-                    <div className="relative">
-                        {headmaster.main_image ? (
-                            <img
-                                src={headmaster.main_image}
-                                alt={headmaster.title}
-                                className="w-72 h-80 object-cover rounded-2xl shadow-lg"
-                            />
-                        ) : (
-                            <div className="w-72 h-80 rounded-2xl bg-blue-50 flex items-center justify-center">
-                                <GraduationCap size={80} className="text-blue-200" />
-                            </div>
-                        )}
-                        {/* Decorative */}
-                        <div className="absolute -bottom-4 -right-4 w-full h-full rounded-2xl border-2 border-blue-200 -z-10" />
                     </div>
-                </motion.div>
-
-                {/* Content */}
-                <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                    <motion.p variants={fadeUp} className="text-blue-600 font-medium text-sm uppercase tracking-widest mb-2">
-                        Sambutan Kepala Sekolah
-                    </motion.p>
-                    <motion.h2 variants={fadeUp} className="text-3xl font-bold text-gray-800 mb-5">
-                        {headmaster.title}
-                    </motion.h2>
-                    <motion.div
-                        variants={fadeUp}
-                        className="prose prose-sm prose-gray max-w-none text-gray-600 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: headmaster.content }}
-                    />
-                    <motion.div variants={fadeUp} className="mt-6">
-                        <Link
-                            href="/profile"
-                            className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
-                        >
-                            Baca Profil Lengkap <ArrowRight size={15} />
-                        </Link>
-                    </motion.div>
-                </motion.div>
+                )}
             </div>
         </SectionWrapper>
     );
 }
 
-// ─── Articles Section ────────────────────────────────────────────────────────
-
 function ArticlesSection({ articles }: { articles: Article[] }) {
-    if (articles.length === 0) return null;
-
+    if (!articles.length) return null;
     return (
-        <SectionWrapper className="bg-gray-50">
-            <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <SectionHeading
-                    title="Berita & Artikel"
-                    subtitle="Informasi terkini seputar kegiatan dan prestasi sekolah."
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {articles.map((article) => (
-                        <motion.div key={article.id} variants={cardVariant}>
-                            <Link
-                                href={`/articles`}
-                                className="group flex flex-col sm:flex-row gap-4 bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-0.5"
-                            >
-                                {article.thumbnail && (
-                                    <div className="sm:w-44 aspect-video sm:aspect-[4/3] overflow-hidden shrink-0">
-                                        <img
-                                            src={article.thumbnail}
-                                            alt={article.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        />
+        <SectionWrapper className="py-16 md:py-24 bg-gray-50/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-end justify-between mb-10">
+                    <div>
+                        <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">
+                            Berita Terkini
+                        </span>
+                        <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-800">
+                            Artikel & Pengumuman
+                        </h2>
+                    </div>
+                    <Link
+                        href="/articles"
+                        className="hidden sm:inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors group"
+                    >
+                        Semua Artikel
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-5">
+                    {articles.map((article, i) => (
+                        <motion.article
+                            key={article.id}
+                            custom={i}
+                            variants={cardVariant}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            whileHover={{ y: -4 }}
+                            transition={{ duration: 0.22 }}
+                            className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-[0_12px_40px_-8px_rgba(59,130,246,0.14),0_4px_12px_-4px_rgba(59,130,246,0.06)] transition-all duration-300 flex flex-col"
+                        >
+                            <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+                                {article.thumbnail_url ? (
+                                    <img
+                                        src={article.thumbnail_url}
+                                        alt={article.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <BookOpen className="w-10 h-10 text-gray-300" />
                                     </div>
                                 )}
-                                <div className="p-5 flex flex-col justify-between">
-                                    <div>
-                                        {article.category && (
-                                            <span className="inline-block px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-xs font-medium mb-2">
-                                                {article.category.name}
-                                            </span>
-                                        )}
-                                        <h3 className="font-semibold text-gray-800 text-base leading-snug group-hover:text-blue-600 transition-colors line-clamp-2 mb-2">
-                                            {article.title}
-                                        </h3>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-gray-400 text-xs mt-2">
-                                        <CalendarDays size={13} />
+                            </div>
+                            <div className="p-5 flex flex-col flex-1">
+                                <div className="flex items-center gap-3 mb-3">
+                                    {article.category && (
+                                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+                                            {article.category.name}
+                                        </span>
+                                    )}
+                                    <span className="flex items-center gap-1 text-xs text-gray-400">
+                                        <Calendar className="w-3 h-3" />
                                         {new Date(article.created_at).toLocaleDateString('id-ID', {
-                                            day: 'numeric', month: 'long', year: 'numeric',
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric',
                                         })}
-                                    </div>
+                                    </span>
                                 </div>
-                            </Link>
-                        </motion.div>
+                                <h3 className="font-bold text-gray-800 text-base md:text-lg mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                    {article.title}
+                                </h3>
+                                <Link
+                                    href={`/articles/${article.slug}`}
+                                    className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors group/link"
+                                >
+                                    Baca selengkapnya
+                                    <ArrowRight className="w-3.5 h-3.5 group-hover/link:translate-x-1 transition-transform" />
+                                </Link>
+                            </div>
+                        </motion.article>
                     ))}
                 </div>
 
-                <motion.div variants={fadeUp} className="text-center mt-10">
+                <div className="sm:hidden mt-6 text-center">
                     <Link
                         href="/articles"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-blue-200 text-blue-600 font-medium hover:bg-blue-50 transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700"
                     >
-                        Lihat Semua Berita <ArrowRight size={16} />
+                        Semua Artikel <ArrowRight className="w-4 h-4" />
                     </Link>
-                </motion.div>
-            </motion.div>
-        </SectionWrapper>
-    );
-}
-
-// ─── CTA Section ─────────────────────────────────────────────────────────────
-
-function CTASection() {
-    return (
-        <SectionWrapper tight>
-            <div className="bg-blue-600 rounded-3xl p-10 sm:p-14 text-center text-white relative overflow-hidden">
-                {/* Decorative blobs */}
-                <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-blue-500 opacity-30 -translate-y-1/2 translate-x-1/3 blur-2xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-blue-700 opacity-40 translate-y-1/2 -translate-x-1/4 blur-2xl pointer-events-none" />
-
-                <motion.div
-                    variants={staggerContainer}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="relative z-10"
-                >
-                    <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-bold mb-4">
-                        Bergabunglah Bersama Kami
-                    </motion.h2>
-                    <motion.p variants={fadeUp} className="text-blue-100 text-base sm:text-lg mb-8 max-w-xl mx-auto">
-                        Daftarkan diri Anda dan mulai perjalanan menuju masa depan yang lebih cerah bersama kami.
-                    </motion.p>
-                    <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link
-                            href="/contact"
-                            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white text-blue-600 font-semibold hover:bg-blue-50 transition-colors shadow-md"
-                        >
-                            Hubungi Kami <ArrowRight size={16} />
-                        </Link>
-                        <Link
-                            href="/profile"
-                            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl border border-white/40 text-white font-medium hover:bg-white/10 transition-colors"
-                        >
-                            Tentang Sekolah
-                        </Link>
-                    </motion.div>
-                </motion.div>
+                </div>
             </div>
         </SectionWrapper>
     );
 }
 
-// ─── Welcome Page ────────────────────────────────────────────────────────────
+function LocationSection({ setting }: { setting: Setting | null }) {
+    const mapSrc = extractIframeSrc(setting?.maps);
 
-export default function Welcome({ banners, headmaster, majors, articles, setting }: WelcomeProps) {
     return (
-        <PublicLayout>
+        <SectionWrapper className="py-16 md:py-24 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-10 md:mb-12">
+                    <span className="inline-block text-xs font-bold text-blue-600 uppercase tracking-widest mb-3">
+                        Lokasi Kami
+                    </span>
+                    <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-800">
+                        Temukan Kami di Sini
+                    </h2>
+                </div>
+
+                <div className="grid lg:grid-cols-3 gap-6 items-start">
+                    <div className="lg:col-span-1 space-y-4">
+                        {setting?.address && (
+                            <div className="flex gap-3.5 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                <div className="shrink-0 w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                                    <MapPin className="w-4.5 h-4.5 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Alamat</p>
+                                    <p className="text-sm text-gray-700 leading-relaxed">{setting.address}</p>
+                                </div>
+                            </div>
+                        )}
+                        {setting?.phone && (
+                            <a
+                                href={`tel:${setting.phone}`}
+                                className="flex gap-3.5 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all duration-200 group"
+                            >
+                                <div className="shrink-0 w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                                    <Phone className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Telepon</p>
+                                    <p className="text-sm text-gray-700 group-hover:text-blue-600 transition-colors">{setting.phone}</p>
+                                </div>
+                            </a>
+                        )}
+                        {setting?.email && (
+                            <a
+                                href={`mailto:${setting.email}`}
+                                className="flex gap-3.5 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all duration-200 group"
+                            >
+                                <div className="shrink-0 w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+                                    <Mail className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Email</p>
+                                    <p className="text-sm text-gray-700 group-hover:text-blue-600 transition-colors">{setting.email}</p>
+                                </div>
+                            </a>
+                        )}
+                        {mapSrc && (
+                            <a
+                                href={mapSrc}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2 p-3.5 rounded-xl border-2 border-blue-600 text-blue-600 font-bold hover:bg-blue-600 hover:text-white transition-all duration-200 text-sm"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                                Buka di Google Maps
+                            </a>
+                        )}
+                    </div>
+
+                    <div className="lg:col-span-2">
+                        {mapSrc ? (
+                            <div className="rounded-2xl overflow-hidden shadow-[0_8px_32px_-8px_rgba(59,130,246,0.15),0_2px_8px_-2px_rgba(59,130,246,0.08)] border border-gray-100 h-72 md:h-96">
+                                <iframe
+                                    src={mapSrc}
+                                    width="100%"
+                                    height="100%"
+                                    style={{ border: 0 }}
+                                    allowFullScreen
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                    title="Lokasi Sekolah"
+                                />
+                            </div>
+                        ) : (
+                            <div className="rounded-2xl bg-gray-100 border border-gray-200 h-72 md:h-96 flex flex-col items-center justify-center gap-3 text-gray-400">
+                                <MapPin className="w-10 h-10" />
+                                <p className="text-sm font-medium">Peta belum tersedia</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </SectionWrapper>
+    );
+}
+
+function ContactSection() {
+    const [email, setEmail] = useState('');
+    const [sent, setSent] = useState(false);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email.trim()) return;
+        setSent(true);
+        setEmail('');
+        setTimeout(() => setSent(false), 4000);
+    };
+
+    return (
+        <SectionWrapper className="py-16 md:py-20 bg-gray-50/60">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="relative bg-gradient-to-br from-blue-600 via-blue-600 to-blue-800 rounded-3xl px-8 py-12 md:py-16 overflow-hidden">
+                    <div className="absolute -top-20 -right-20 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-blue-900/30 rounded-full blur-3xl pointer-events-none" />
+
+                    <div className="relative z-10 max-w-xl mx-auto text-center">
+                        <span className="inline-block text-xs font-bold text-blue-300 uppercase tracking-widest mb-3">
+                            Tetap Terhubung
+                        </span>
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-3">
+                            Dapatkan Informasi Terbaru
+                        </h2>
+                        <p className="text-blue-200 text-sm md:text-base mb-8">
+                            Masukkan email Anda untuk mendapatkan pengumuman, berita sekolah, dan informasi penting lainnya.
+                        </p>
+
+                        <AnimatePresence mode="wait">
+                            {sent ? (
+                                <motion.div
+                                    key="success"
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    transition={{ duration: 0.3, ease: easeOut }}
+                                    className="flex items-center justify-center gap-2 px-6 py-4 bg-blue-500/30 rounded-xl border border-blue-400/40 text-white font-semibold text-sm"
+                                >
+                                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                                    Terima kasih! Kami akan segera menghubungi Anda.
+                                </motion.div>
+                            ) : (
+                                <motion.form
+                                    key="form"
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    transition={{ duration: 0.3, ease: easeOut }}
+                                    onSubmit={handleSubmit}
+                                    className="flex flex-col sm:flex-row gap-3"
+                                >
+                                    <div className="flex-1 relative">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300 pointer-events-none" />
+                                        <input
+                                            type="email"
+                                            required
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="alamat@email.com"
+                                            className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder:text-blue-300/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/40 transition-all text-sm"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-blue-700 font-bold rounded-xl hover:bg-blue-50 transition-all duration-200 hover:-translate-y-0.5 text-sm shrink-0 shadow-lg"
+                                    >
+                                        Berlangganan
+                                        <Send className="w-4 h-4" />
+                                    </button>
+                                </motion.form>
+                            )}
+                        </AnimatePresence>
+
+                        <p className="text-blue-300/70 text-xs mt-4">
+                            Kami menghargai privasi Anda. Tidak ada spam.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </SectionWrapper>
+    );
+}
+
+export default function Welcome({ banners, majors, articles, setting, headmaster }: WelcomeProps) {
+    return (
+        <PublicLayout variant="landing">
             <Head title={setting?.school_name ?? 'Beranda'} />
-
-            {/* Hero */}
             <HeroCarousel banners={banners} />
-
-            {/* Stats */}
-            <StatsStrip majors={majors} />
-
-            {/* Headmaster */}
+            <StatsSection />
+            <PPDBSection />
             <HeadmasterSection headmaster={headmaster} />
-
-            {/* Majors */}
-            {majors.length > 0 && <MajorsSection majors={majors} />}
-
-            {/* Articles */}
+            <MajorsSection majors={majors} />
             <ArticlesSection articles={articles} />
-
-            {/* CTA */}
-            <CTASection />
+            <LocationSection setting={setting} />
+            <ContactSection />
         </PublicLayout>
     );
 }
