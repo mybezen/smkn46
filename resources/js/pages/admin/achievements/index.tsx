@@ -84,10 +84,6 @@ const fadeIn = {
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-const resolveThumbnail = (thumbnail: string | null | undefined): string => {
-    return thumbnail ? `/storage/${thumbnail}` : '';
-};
-
 export default function Index({ achievements, filters }: Props) {
     const [search, setSearch] = useState(filters.search ?? '');
     const [categoryFilter, setCategoryFilter] = useState(
@@ -333,9 +329,7 @@ export default function Index({ achievements, filters }: Props) {
                                                             <div className="flex h-10 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100">
                                                                 {achievement.thumbnail ? (
                                                                     <img
-                                                                        src={resolveThumbnail(
-                                                                            achievement.thumbnail,
-                                                                        )}
+                                                                        src={achievement.thumbnail_url}
                                                                         alt={
                                                                             achievement.title
                                                                         }

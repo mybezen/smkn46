@@ -16,6 +16,19 @@ class Achievement extends Model
         'thumbnail',
         'category',
     ];
+    
+    protected $appends = [
+        'thumbnail_url',
+    ];
+    
+    public function getThumbnailUrlAttribute()
+    {
+        if (!$this->thumbnail) {
+            return null;
+        }
+        
+        return asset('storage/' . $this->thumbnail);
+    }
 
     protected $casts = [
         'category' => 'string',

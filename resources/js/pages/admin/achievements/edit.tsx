@@ -37,20 +37,17 @@ const cardVariants: Variants = {
     }),
 };
 
-const resolveThumbnail = (thumbnail: string | null | undefined): string => {
-    return thumbnail ? `/storage/${thumbnail}` : '';
-};
-
 export default function Edit({ achievement }: Props) {
-    const { data, setData, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         title: achievement.title,
         description: achievement.description,
         category: achievement.category,
         thumbnail: null as File | null,
+        _method: 'PUT',
     });
 
     const [preview, setPreview] = useState<string | null>(
-        resolveThumbnail(achievement.thumbnail),
+        achievement.thumbnail_url,
     );
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,7 +64,7 @@ export default function Edit({ achievement }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(`/admin/achievements/${achievement.id}`);
+        post(`/admin/achievements/${achievement.id}`);
     };
 
     return (

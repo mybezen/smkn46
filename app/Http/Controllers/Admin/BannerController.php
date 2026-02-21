@@ -28,17 +28,7 @@ class BannerController extends Controller
         $banners = $query->orderBy('order')
             ->latest()
             ->paginate(10)
-            ->withQueryString()
-            ->through(fn ($banner) => [
-                'id' => $banner->id,
-                'title' => $banner->title,
-                'description' => $banner->description,
-                'image' => Storage::disk('public')->url($banner->image),
-                'link' => $banner->link,
-                'is_active' => $banner->is_active,
-                'order' => $banner->order,
-                'created_at' => $banner->created_at->format('d M Y'),
-            ]);
+            ->withQueryString();
 
         return Inertia::render('admin/banners/index', [
             'banners' => $banners,
@@ -65,28 +55,37 @@ class BannerController extends Controller
             ->with('success', 'Banner created successfully.');
     }
 
-    public function edit(Banner $banner): Response
+    public function edit(string $id)
     {
+        $banner = Banner::find($id);
+
+        if (!$banner) {
+            return redirect()->back()->with('error', 'Banner not found');
+        }
+
         return Inertia::render('admin/banners/edit', [
-            'banner' => [
-                'id' => $banner->id,
-                'title' => $banner->title,
-                'description' => $banner->description,
-                'image' => Storage::disk('public')->url($banner->image),
-                'link' => $banner->link,
-                'is_active' => $banner->is_active,
-                'order' => $banner->order,
-            ],
+            'banner' => $banner,
         ]);
     }
 
-    public function update(UpdateBannerRequest $request, Banner $banner)
+    public function update(UpdateBannerRequest $request, string $id)
     {
+        $banner = Banner::find($id);
+
+        if (!$banner) {
+            return redirect()->back()->with('error', 'Banner not found');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            Storage::disk('public')->delete($banner->image);
+            if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+                Storage::disk('public')->delete($banner->image);
+            }
+
             $data['image'] = $request->file('image')->store('banners', 'public');
+        } else {
+            unset($data['image']);
         }
 
         $banner->update($data);
@@ -95,9 +94,18 @@ class BannerController extends Controller
             ->with('success', 'Banner updated successfully.');
     }
 
-    public function destroy(Banner $banner)
+    public function destroy(string $id)
     {
-        Storage::disk('public')->delete($banner->image);
+        $banner = Banner::find($id);
+
+        if (!$banner) {
+            return redirect()->back()->with('error', 'Banner not found');
+        }
+
+        if ($banner->image && Storage::disk('public')->exists($banner->image)) {
+            Storage::disk('public')->delete($banner->image);
+        }
+
         $banner->delete();
 
         return redirect()->route('admin.banners.index')

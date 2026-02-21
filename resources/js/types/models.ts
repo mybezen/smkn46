@@ -5,6 +5,7 @@ export interface Achievement {
     title: string;
     description: string;
     thumbnail: string | null;
+    thumbnail_url: string | null;
     category: AchievementCategory;
     created_at: string;
 }
@@ -21,6 +22,7 @@ export interface Banner {
     title: string;
     description: string | null;
     image: string;
+    thumbnail_url: string | null;
     link: string | null;
     is_active: boolean;
     order: number;

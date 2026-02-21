@@ -18,6 +18,19 @@ class Banner extends Model
         'is_active',
         'order',
     ];
+    
+    protected $appends = [
+        'image_url',
+    ];
+    
+    public function getImageUrlAttribute()
+    {
+        if (!$this->image) {
+            return null;
+        }
+        
+        return asset('storage/' . $this->image);
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

@@ -206,7 +206,7 @@ export default function Index({ banners, filters }: Props) {
                                                         <div className="h-10 w-14 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
                                                             {banner.image ? (
                                                                 <img
-                                                                    src={banner.image}
+                                                                    src={banner.image_url}
                                                                     alt={banner.title}
                                                                     className="h-full w-full object-cover"
                                                                 />
