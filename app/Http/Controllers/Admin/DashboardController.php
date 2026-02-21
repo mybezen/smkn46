@@ -8,8 +8,8 @@ use App\Models\Article;
 use App\Models\Employee;
 use App\Models\Gallery;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -23,6 +23,16 @@ class DashboardController extends Controller
                 COALESCE(SUM(is_published = 1), 0) as published
             ')
             ->first();
+
+        $recentArticles = Article::query()
+            ->latest()
+            ->limit(3)
+            ->get(['id', 'title', 'slug', 'created_at', 'is_published']);
+
+        $recentUsers = User::query()
+            ->latest()
+            ->limit(3)
+            ->get(['id', 'name', 'email', 'is_admin', 'created_at']);
 
         $achievements = Achievement::query()
             ->selectRaw("
@@ -49,20 +59,19 @@ class DashboardController extends Controller
         });
 
         $articlesByMonth = Article::query()
-            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
             ->where('created_at', '>=', now()->subMonths(6)->startOfMonth())
             ->groupBy('month')
             ->pluck('count', 'month');
 
         $usersByMonth = User::query()
-            ->selectRaw("strftime('%Y-%m', created_at) as month, COUNT(*) as count")
+            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
             ->where('created_at', '>=', now()->subMonths(6)->startOfMonth())
             ->groupBy('month')
             ->pluck('count', 'month');
 
         $monthlyChart = $months->map(function (string $ym) use ($articlesByMonth, $usersByMonth) {
-            // e.g. "2024-08" → "Aug"
-            $label = \Carbon\Carbon::createFromFormat('Y-m', $ym)->format('M');
+            $label = Carbon::createFromFormat('Y-m', $ym)->format('M');
 
             return [
                 'month'    => $label,
@@ -77,6 +86,7 @@ class DashboardController extends Controller
                     'total'     => $articles->total,
                     'draft'     => $articles->draft,
                     'published' => $articles->published,
+                    'recent' => $recentArticles,
                 ],
                 'achievements' => [
                     'total'       => $achievements->total,
@@ -87,6 +97,7 @@ class DashboardController extends Controller
                     'total' => $users->total,
                     'admin' => $users->admins,
                     'users' => $users->users,
+                    'recent' => $recentUsers,
                 ],
                 'employees'    => $employees,
                 'galleries'    => $galleries,
@@ -102,7 +113,7 @@ class DashboardController extends Controller
                 'galleries'    => $galleries,
                 // Non-admins still get article-only chart (users column will be 0)
                 'monthly_chart' => array_map(
-                    fn ($row) => ['month' => $row['month'], 'articles' => $row['articles'], 'users' => 0],
+                    fn($row) => ['month' => $row['month'], 'articles' => $row['articles'], 'users' => 0],
                     $monthlyChart
                 ),
             ]);

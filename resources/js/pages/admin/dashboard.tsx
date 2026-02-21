@@ -37,10 +37,27 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+interface RecentArticle {
+    id: number;
+    title: string;
+    slug: string;
+    created_at: string;
+    is_published: boolean;
+}
+
+interface RecentUser {
+    id: number;
+    name: string;
+    email: string;
+    is_admin: boolean;
+    created_at: string;
+}
+
 interface ArticlesStats {
     total: number;
     draft: number;
     published: number;
+    recent?: RecentArticle[];
 }
 
 interface AchievementsStats {
@@ -53,6 +70,7 @@ interface UsersStats {
     total: number;
     admin: number;
     users: number;
+    recent?: RecentUser[];
 }
 
 interface MonthlyChartEntry {
@@ -253,6 +271,22 @@ export default function Dashboard({ articles, achievements, users, employees, ga
     const hasChartData = monthly_chart.some((d) => d.articles > 0 || d.users > 0);
     const isAdmin = users !== undefined;
     const actions = isAdmin ? adminActions : editorActions;
+
+    // Map recent articles to RecentCard items
+    const recentArticleItems = (articles.recent ?? []).map((a) => ({
+        id: a.id,
+        label: a.title,
+        sub: a.is_published ? 'Published' : 'Draft',
+        href: `/admin/articles/${a.slug}`,
+    }));
+
+    // Map recent users to RecentCard items
+    const recentUserItems = (users?.recent ?? []).map((u) => ({
+        id: u.id,
+        label: u.name,
+        sub: u.email,
+        href: `/admin/users/${u.id}/edit`,
+    }));
 
     return (
         <AppLayout>
@@ -516,7 +550,7 @@ export default function Dashboard({ articles, achievements, users, employees, ga
                         title="Recent Articles"
                         href="/admin/articles"
                         icon={<FileText className="w-4 h-4 text-blue-600" />}
-                        items={[]}
+                        items={recentArticleItems}
                         emptyMessage="No articles yet"
                     />
 
@@ -525,7 +559,7 @@ export default function Dashboard({ articles, achievements, users, employees, ga
                             title="Recent Users"
                             href="/admin/users"
                             icon={<Users className="w-4 h-4 text-sky-600" />}
-                            items={[]}
+                            items={recentUserItems}
                             emptyMessage="No users yet"
                         />
                     )}
