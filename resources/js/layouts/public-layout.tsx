@@ -26,18 +26,18 @@ const pageVariants: Variants = {
 export default function PublicLayout({ children }: PublicLayoutProps) {
     const { props } = usePage<SharedProps>();
     const setting = props.setting ?? null;
+    const logo = props.setting.logo_url;
+    const schoolName = props.setting.school_name;
 
     return (
         <motion.div
             variants={pageVariants}
             initial="hidden"
             animate="visible"
-            className="min-h-screen flex flex-col bg-white"
+            className="flex min-h-screen flex-col bg-white"
         >
-            <Navbar setting={setting} />
-            <main className="flex-1 pt-16">
-                {children}
-            </main>
+            <Navbar logo={logo} schoolName={schoolName} />
+            <main className="flex-1 pt-16">{children}</main>
             <Footer setting={setting} />
         </motion.div>
     );

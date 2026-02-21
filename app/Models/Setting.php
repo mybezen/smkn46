@@ -13,12 +13,12 @@ class Setting extends Model
         'phone',
         'email',
         'maps',
-        'facebook_link',
-        'instagram_link',
-        'twitter_link',
-        'youtube_link',
+        'facebook',
+        'instagram',
+        'twitter',
+        'youtube',
     ];
-    
+
     protected $appends = [
         'logo_url',
     ];
@@ -34,7 +34,7 @@ class Setting extends Model
 
     /**
      * Singleton pattern. first() if exists, create() if not exists.
-     * 
+     *
      * @return Setting
      */
     public static function instance()

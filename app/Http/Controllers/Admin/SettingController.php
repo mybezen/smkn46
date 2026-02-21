@@ -15,7 +15,7 @@ class SettingController extends Controller
     public function index(): Response
     {
         $setting = Setting::first();
-        
+
         return Inertia::render('admin/settings/index', [
             'setting' => $setting,
         ]);

@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/collapsible';
 import AppLogo from './app-logo';
 import { usePage } from '@inertiajs/react';
+import AppLogoIcon from './app-logo-icon';
 
 interface SubItem {
     title: string;
@@ -78,8 +79,14 @@ const navItems: NavEntry[] = [
             { title: 'Headmaster', href: '/admin/profile/headmaster' },
             { title: 'Profile', href: '/admin/profile/profile' },
             { title: 'History', href: '/admin/profile/history' },
-            { title: 'Vision & Mission', href: '/admin/profile/vision-mission' },
-            { title: 'Organization Structure', href: '/admin/profile/organization-structure' },
+            {
+                title: 'Vision & Mission',
+                href: '/admin/profile/vision-mission',
+            },
+            {
+                title: 'Organization Structure',
+                href: '/admin/profile/organization-structure',
+            },
         ],
     },
     {
@@ -146,7 +153,10 @@ function NavItemComponent({ item }: { item: NavEntry }) {
         );
 
         return (
-            <Collapsible defaultOpen={isAnyChildActive} className="group/collapsible">
+            <Collapsible
+                defaultOpen={isAnyChildActive}
+                className="group/collapsible"
+            >
                 <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
                         <SidebarMenuButton
@@ -166,7 +176,10 @@ function NavItemComponent({ item }: { item: NavEntry }) {
                                 const isActive = url.startsWith(child.href);
                                 return (
                                     <SidebarMenuSubItem key={child.href}>
-                                        <SidebarMenuSubButton asChild isActive={isActive}>
+                                        <SidebarMenuSubButton
+                                            asChild
+                                            isActive={isActive}
+                                        >
                                             <Link href={child.href} prefetch>
                                                 {child.title}
                                             </Link>
@@ -181,9 +194,10 @@ function NavItemComponent({ item }: { item: NavEntry }) {
         );
     }
 
-    const isActive = url.startsWith(item.href) && item.href !== '/admin/dashboard'
-        ? url.startsWith(item.href)
-        : url === item.href;
+    const isActive =
+        url.startsWith(item.href) && item.href !== '/admin/dashboard'
+            ? url.startsWith(item.href)
+            : url === item.href;
 
     return (
         <SidebarMenuItem>
@@ -201,6 +215,8 @@ export function AppSidebar() {
     const { props } = usePage();
     const user = props.auth?.user;
     const isAdmin = user?.is_admin ?? false;
+    const logo = props.setting.logo_url;
+    const schoolName = props.setting.school_name;
 
     let filteredNavItems: NavEntry[];
     if (isAdmin) {
@@ -232,7 +248,22 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
                             <Link href="/admin/dashboard" prefetch>
-                                <AppLogo />
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-transparent text-sidebar-primary-foreground">
+                                    {logo ? (
+                                        <img
+                                            src={logo}
+                                            className="size-8 fill-current"
+                                            alt={schoolName}
+                                        />
+                                    ) : (
+                                        <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
+                                    )}
+                                </div>
+                                <div className="ml-1 grid flex-1 text-left text-sm">
+                                    <span className="mb-0.5 truncate leading-tight font-semibold">
+                                        {schoolName} Panel
+                                    </span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

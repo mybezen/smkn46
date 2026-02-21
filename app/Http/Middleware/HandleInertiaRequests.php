@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +43,22 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'setting' => function () {
+                $setting = Setting::first();
+
+                return [
+                    'school_name' => $setting?->school_name ?: config('app.name'),
+                    'logo' => $setting?->logo_url,
+                    'address' => $setting?->address,
+                    'phone' => $setting?->phone,
+                    'email' => $setting?->email,
+                    'maps' => $setting?->maps,
+                    'facebook_link' => $setting?->facebook_link,
+                    'instagram_link' => $setting?->instagram_link,
+                    'twitter_link' => $setting?->twitter_link,
+                    'youtube_link' => $setting?->youtube_link,
+                ];
+            },
         ];
     }
 }

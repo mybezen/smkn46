@@ -28,7 +28,7 @@ export default function Footer({ setting }: FooterProps) {
                         <Link href="/" className="flex items-center gap-3 mb-4 group w-fit">
                             {setting?.logo ? (
                                 <img
-                                    src={setting.logo}
+                                    src={setting.logo_url}
                                     alt={setting.school_name}
                                     className="h-10 w-10 object-contain"
                                 />
@@ -77,9 +77,9 @@ export default function Footer({ setting }: FooterProps) {
 
                         {/* Social */}
                         <div className="flex gap-3 mt-6">
-                            {setting?.facebook_link && (
+                            {setting?.facebook && (
                                 <a
-                                    href={setting.facebook_link}
+                                    href={setting.facebook}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-blue-600 hover:border-blue-200 transition-colors shadow-sm"
@@ -88,9 +88,9 @@ export default function Footer({ setting }: FooterProps) {
                                     <Facebook size={17} />
                                 </a>
                             )}
-                            {setting?.instagram_link && (
+                            {setting?.instagram && (
                                 <a
-                                    href={setting.instagram_link}
+                                    href={setting.instagram}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-pink-500 hover:border-pink-200 transition-colors shadow-sm"
@@ -99,9 +99,9 @@ export default function Footer({ setting }: FooterProps) {
                                     <Instagram size={17} />
                                 </a>
                             )}
-                            {setting?.twitter_link && (
+                            {setting?.twitter && (
                                 <a
-                                    href={setting.twitter_link}
+                                    href={setting.twitter}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-sky-500 hover:border-sky-200 transition-colors shadow-sm"
@@ -110,9 +110,9 @@ export default function Footer({ setting }: FooterProps) {
                                     <Twitter size={17} />
                                 </a>
                             )}
-                            {setting?.youtube_link && (
+                            {setting?.youtube && (
                                 <a
-                                    href={setting.youtube_link}
+                                    href={setting.youtube}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-red-500 hover:border-red-200 transition-colors shadow-sm"
@@ -168,9 +168,6 @@ export default function Footer({ setting }: FooterProps) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
                     <p className="text-xs text-gray-500">
                         &copy; {year} {setting?.school_name ?? 'Sekolah'}. Hak cipta dilindungi.
-                    </p>
-                    <p className="text-xs text-gray-400">
-                        Dibuat dengan ❤️ untuk pendidikan Indonesia
                     </p>
                 </div>
             </div>

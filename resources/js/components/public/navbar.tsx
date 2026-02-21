@@ -4,10 +4,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
 import { Menu, X } from 'lucide-react';
-import type { Setting } from '@/types/models';
 
 interface NavbarProps {
-    setting: Setting | null;
+    logo: string | null;
+    schoolName: string;
 }
 
 const navLinks = [
@@ -42,7 +42,7 @@ const linkItemVariants: Variants = {
     }),
 };
 
-export default function Navbar({ setting }: NavbarProps) {
+export default function Navbar({ logo, schoolName }: NavbarProps) {
     const { url } = usePage();
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -59,7 +59,9 @@ export default function Navbar({ setting }: NavbarProps) {
 
     useEffect(() => {
         document.body.style.overflow = open ? 'hidden' : '';
-        return () => { document.body.style.overflow = ''; };
+        return () => {
+            document.body.style.overflow = '';
+        };
     }, [open]);
 
     const isActive = (href: string) =>
@@ -68,40 +70,43 @@ export default function Navbar({ setting }: NavbarProps) {
     return (
         <>
             <header
-                className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+                className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
                     scrolled
-                        ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100'
+                        ? 'border-b border-gray-100 bg-white/95 shadow-sm backdrop-blur-md'
                         : 'bg-white/80 backdrop-blur-sm'
                 }`}
             >
-                <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
+                <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-4 sm:px-6 lg:px-8">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 shrink-0 group">
-                        {setting?.logo ? (
+                    <Link
+                        href="/"
+                        className="group flex shrink-0 items-center gap-3"
+                    >
+                        {logo ? (
                             <img
-                                src={setting.logo}
-                                alt={setting.school_name}
+                                src={logo}
+                                alt={schoolName}
                                 className="h-9 w-9 object-contain"
                             />
                         ) : (
-                            <div className="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">
-                                    {setting?.school_name?.charAt(0) ?? 'S'}
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
+                                <span className="text-sm font-bold text-white">
+                                    {schoolName.charAt(0) ?? 'S'}
                                 </span>
                             </div>
                         )}
-                        <span className="font-semibold text-gray-800 text-sm leading-tight max-w-[160px] group-hover:text-blue-600 transition-colors duration-200">
-                            {setting?.school_name ?? 'Sekolah'}
+                        <span className="max-w-[160px] text-sm leading-tight font-semibold text-gray-800 transition-colors duration-200 group-hover:text-blue-600">
+                            {schoolName}
                         </span>
                     </Link>
 
                     {/* Desktop nav */}
-                    <ul className="hidden lg:flex items-center gap-1">
+                    <ul className="hidden items-center gap-1 lg:flex">
                         {navLinks.map(({ href, label }) => (
                             <li key={href}>
                                 <Link
                                     href={href}
-                                    className={`relative px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 group ${
+                                    className={`group relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${
                                         isActive(href)
                                             ? 'text-blue-600'
                                             : 'text-gray-600 hover:text-blue-600'
@@ -109,8 +114,10 @@ export default function Navbar({ setting }: NavbarProps) {
                                 >
                                     {label}
                                     <span
-                                        className={`absolute bottom-1 left-3 right-3 h-0.5 rounded-full bg-blue-500 transition-all duration-300 origin-left ${
-                                            isActive(href) ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-60'
+                                        className={`absolute right-3 bottom-1 left-3 h-0.5 origin-left rounded-full bg-blue-500 transition-all duration-300 ${
+                                            isActive(href)
+                                                ? 'scale-x-100 opacity-100'
+                                                : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-60'
                                         }`}
                                     />
                                 </Link>
@@ -119,10 +126,10 @@ export default function Navbar({ setting }: NavbarProps) {
                     </ul>
 
                     {/* CTA */}
-                    <div className="hidden lg:block shrink-0">
+                    <div className="hidden shrink-0 lg:block">
                         <Link
                             href="/contact"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 active:bg-blue-800 transition-colors duration-200 shadow-sm"
+                            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors duration-200 hover:bg-blue-700 active:bg-blue-800"
                         >
                             Hubungi Kami
                         </Link>
@@ -131,7 +138,7 @@ export default function Navbar({ setting }: NavbarProps) {
                     {/* Mobile burger */}
                     <button
                         onClick={() => setOpen(true)}
-                        className="lg:hidden p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                        className="rounded-lg p-2 text-gray-600 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600 lg:hidden"
                         aria-label="Buka menu"
                     >
                         <Menu size={22} />
@@ -161,15 +168,15 @@ export default function Navbar({ setting }: NavbarProps) {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-white shadow-2xl flex flex-col"
+                            className="fixed top-0 right-0 bottom-0 z-50 flex w-72 flex-col bg-white shadow-2xl"
                         >
-                            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                                <span className="font-semibold text-gray-800 text-sm">
-                                    {setting?.school_name ?? 'Menu'}
+                            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+                                <span className="text-sm font-semibold text-gray-800">
+                                    {schoolName ?? 'Menu'}
                                 </span>
                                 <button
                                     onClick={() => setOpen(false)}
-                                    className="p-1.5 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                    className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-600"
                                     aria-label="Tutup menu"
                                 >
                                     <X size={20} />
@@ -188,7 +195,7 @@ export default function Navbar({ setting }: NavbarProps) {
                                         >
                                             <Link
                                                 href={href}
-                                                className={`flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-200 ${
+                                                className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                                                     isActive(href)
                                                         ? 'bg-blue-50 text-blue-600'
                                                         : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
@@ -201,10 +208,10 @@ export default function Navbar({ setting }: NavbarProps) {
                                 </ul>
                             </nav>
 
-                            <div className="px-5 py-4 border-t border-gray-100">
+                            <div className="border-t border-gray-100 px-5 py-4">
                                 <Link
                                     href="/contact"
-                                    className="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors duration-200"
+                                    className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-blue-700"
                                 >
                                     Hubungi Kami
                                 </Link>
