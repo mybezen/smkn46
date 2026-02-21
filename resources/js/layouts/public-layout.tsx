@@ -1,13 +1,15 @@
-import { usePage } from '@inertiajs/react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { easeOut } from 'motion';
 import type { Variants } from 'motion/react';
+import { usePage } from '@inertiajs/react';
 import Navbar from '@/components/public/navbar';
 import Footer from '@/components/public/footer';
-import type { Setting } from '@/types/models';
+import type { Setting } from '@/types/public';
 
 interface PublicLayoutProps {
     children: React.ReactNode;
+    variant?: 'landing' | 'default';
 }
 
 interface SharedProps {
@@ -19,11 +21,11 @@ const pageVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { duration: 0.4, ease: easeOut },
+        transition: { duration: 0.45, ease: easeOut },
     },
 };
 
-export default function PublicLayout({ children }: PublicLayoutProps) {
+export default function PublicLayout({ children, variant = 'default' }: PublicLayoutProps) {
     const { props } = usePage<SharedProps>();
     const setting = props.setting ?? null;
     const logo = props.setting.logo_url;
@@ -31,13 +33,15 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
     return (
         <motion.div
-            variants={pageVariants}
             initial="hidden"
             animate="visible"
-            className="flex min-h-screen flex-col bg-white"
+            variants={pageVariants}
+            className="min-h-screen flex flex-col bg-white"
         >
-            <Navbar logo={logo} schoolName={schoolName} />
-            <main className="flex-1 pt-16">{children}</main>
+            <Navbar variant={variant} setting={setting} />
+            <main className="flex-1">
+                {children}
+            </main>
             <Footer setting={setting} />
         </motion.div>
     );

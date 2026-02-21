@@ -28,10 +28,10 @@ class UpdateSettingRequest extends FormRequest
             'phone' => ['nullable', 'string'],
             'email' => ['nullable', 'email'],
             'maps' => ['nullable', 'string'],
-            'facebook' => ['nullable', 'url'],
-            'instagram' => ['nullable', 'url'],
-            'twitter' => ['nullable', 'url'],
-            'youtube' => ['nullable', 'url'],
+            'facebook_link' => ['nullable', 'url'],
+            'instagram_link' => ['nullable', 'url'],
+            'twitter_link' => ['nullable', 'url'],
+            'youtube_link' => ['nullable', 'url'],
         ];
     }
 }
