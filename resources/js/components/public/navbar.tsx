@@ -95,7 +95,7 @@ export default function Navbar({ variant = 'default', setting }: NavbarProps) {
                             )}
                             <span
                                 className={`font-bold text-base lg:text-lg leading-tight transition-colors duration-300 ${logoTextColor}`}
-                                style={{ fontFamily: "'Playfair Display', serif" }}
+                                style={{ fontFamily: "'Urbanist', sans-serif" }}
                             >
                                 {setting?.school_name ?? 'Sekolah'}
                             </span>
@@ -187,7 +187,7 @@ export default function Navbar({ variant = 'default', setting }: NavbarProps) {
                             className="fixed top-0 right-0 h-full w-72 bg-white shadow-2xl z-50 lg:hidden flex flex-col"
                         >
                             <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                                <span className="font-bold text-blue-600 text-base" style={{ fontFamily: "'Playfair Display', serif" }}>
+                                <span className="font-bold text-blue-600 text-base" style={{ fontFamily: "'Urbanist', sans-serif" }}>
                                     {setting?.school_name ?? 'Sekolah'}
                                 </span>
                                 <button
